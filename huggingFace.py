@@ -16,15 +16,6 @@ from langchain.schema import (
 HUGGINGFACEHUB_API_TOKEN = "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"
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = HUGGINGFACEHUB_API_TOKEN
 
-# Template and prompting
-question = "How old is lady gaga today? "
-
-template = """Question: {question}
-Use Wikipedia as your source and quote it.
-Answer: Let's think step by step."""
-
-prompt = PromptTemplate.from_template(template)
-
 # LLM choice from HuggingFace here:
 repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
 
@@ -33,6 +24,7 @@ llm = HuggingFaceEndpoint(
     repo_id=repo_id, max_length=128, temperature=0.5, token=HUGGINGFACEHUB_API_TOKEN
 )
 
+chat_model = ChatHuggingFace(llm=llm)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a math genius that gives exact answers to math questions"),
