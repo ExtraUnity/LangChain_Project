@@ -32,5 +32,5 @@
 
 ## Update environment from yaml
 ```
-    conda env update -n <myenv> -f environment.yaml --prune
+    conda env update -n <env_name> -f environment.yaml --prune
 ```
