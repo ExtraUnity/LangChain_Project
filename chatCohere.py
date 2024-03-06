@@ -15,8 +15,6 @@ output_parser = StrOutputParser()
 
 chain = prompt | llm | output_parser
 
-answer = chain.invoke({"input": "What is 2+2?"})
+answer = chain.invoke({"input": "Who are you?"})
 
 print(answer)
-
-

@@ -11,10 +11,12 @@ from langchain.schema import (
     HumanMessage,
     SystemMessage,
 )
+
+# API-TOKEN from https://huggingface.co/settings/tokens
 HUGGINGFACEHUB_API_TOKEN = "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"
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = HUGGINGFACEHUB_API_TOKEN
 
-
+# Template and prompting
 question = "How old is lady gaga today? "
 
 template = """Question: {question}
@@ -23,8 +25,10 @@ Answer: Let's think step by step."""
 
 prompt = PromptTemplate.from_template(template)
 
+# LLM choice from HuggingFace here:
 repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
 
+# Instantiate the LLM
 llm = HuggingFaceEndpoint(
     repo_id=repo_id, max_length=128, temperature=0.5, token=HUGGINGFACEHUB_API_TOKEN
 )
