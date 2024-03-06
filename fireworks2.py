@@ -12,7 +12,17 @@ client = openai.OpenAI(
     api_key = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
 )
 
-# Class
+# Prompting the LLM 
+print("Please ask your question")
+question = input()
+
+messages = [
+    {"role": "system", "content": f"You are a helpful assistant with access to functions."},
+    {"role": "user", "content": question}
+]
+
+
+# Set up tools
 tool_add = {
         "type": "function",
         "function": {
@@ -32,20 +42,6 @@ tool_add = {
         },
     }
 
-def add(first_int: int, second_int: int) -> int:
-    print("called")
-    return first_int + second_int
-
-
-
-# Prompting the LLM 
-print("Please ask your question")
-question = input()
-
-messages = [
-    {"role": "system", "content": f"You are a helpful assistant with access to functions."},
-    {"role": "user", "content": question}
-]
 
 tools = [tool_add]
 
@@ -58,13 +54,19 @@ chat_completion = client.chat.completions.create(
     temperature=0.1
 )
 
-
+parsedOutput = chat_completion.choices[0].message.content
 
 
 
 # Result
 # print(repr(chat_completion.choices[0].message.content))
-print(chat_completion.choices[0].message.model_dump_json(indent=4))
+# print(chat_completion.choices[0].message.model_dump_json(indent=4))
+print(parsedOutput)
 
 
 
+
+# Functions:
+def add(first_int: int, second_int: int) -> int:
+    print("called")
+    return first_int + second_int
