@@ -29,4 +29,17 @@ llm = HuggingFaceEndpoint(
     repo_id=repo_id, max_length=128, temperature=0.5, token=HUGGINGFACEHUB_API_TOKEN
 )
 llm_chain = LLMChain(prompt=prompt, llm=llm)
-print(llm_chain.invoke(question).get("text"))
+# print(llm_chain.invoke(question).get("text"))
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a math genius that gives exact answers to math questions"),
+    ("user", "{input}")
+])
+
+output_parser = StrOutputParser()
+
+chain = prompt | llm | output_parser
+
+answer = chain.invoke({"input": "What is 2+2*4?"})
+
+print(answer)
