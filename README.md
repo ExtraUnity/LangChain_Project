@@ -15,3 +15,22 @@
     ```
     conda activate <env_name>
     ```
+
+
+
+## Export environment to yaml
+
+### For Windows
+```
+    conda env export --no-builds | findstr -v "^prefix: " > environment.yaml
+```
+
+### For Mac/Linux
+```
+    conda env export --no-builds | grep -v "^prefix: " > environment.yaml
+```
+
+## Update environment from yaml
+```
+    conda env update -n <myenv> -f environment.yaml --prune
+```
