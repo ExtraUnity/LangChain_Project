@@ -13,8 +13,29 @@ client = openai.OpenAI(
 )
 
 # Class
-class Result(BaseModel):
-    winner: str
+tool_add = {
+        "type": "function",
+        "function": {
+            "name": "add",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "first_int": {
+                        "type": "integer"
+                    },
+                    "second_int": {
+                        "type": "integer", 
+                    }
+                },
+                "required": ["first_int", "second_int"],
+            },
+        },
+    }
+
+def add(first_int: int, second_int: int) -> int:
+    print("called")
+    return first_int + second_int
+
 
 
 # Prompting the LLM 
@@ -22,28 +43,28 @@ print("Please ask your question")
 question = input()
 
 messages = [
-    {"role": "system", "content": f"""
-     Your name is Bob the Bot.
-     You will only reply in one JSON."""},
-    
+    {"role": "system", "content": f"You are a helpful assistant with access to functions."},
     {"role": "user", "content": question}
 ]
 
+tools = [tool_add]
 
 
 # Combines the message prompt and tools
 chat_completion = client.chat.completions.create(
     model="accounts/fireworks/models/mixtral-8x7b-instruct",
-    response_format={"type": "json_object", "schema": Result.schema_json()},
     messages=messages,
-    #tools=tools,
+    tools=tools,
     temperature=0.1
 )
 
 
-# Result
-print(repr(chat_completion.choices[0].message.content))
 
+
+
+# Result
+# print(repr(chat_completion.choices[0].message.content))
+print(chat_completion.choices[0].message.model_dump_json(indent=4))
 
 
 
