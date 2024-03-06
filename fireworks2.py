@@ -1,72 +1,30 @@
 import os
-import openai
-import json
-from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_core.output_parsers.openai_tools import JsonOutputToolsParser
-
-
+from llama_index.llms.fireworks import Fireworks
+from llama_index.agent.openai import OpenAIAgent
+from llama_index.core.tools import BaseTool, FunctionTool
 
 # API Key
-client = openai.OpenAI(
-    base_url = "https://api.fireworks.ai/inference/v1", 
-    api_key = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
-)
-
-# Prompting the LLM 
-print("Please ask your question")
-question = input()
-
-messages = [
-    {"role": "system", "content": f"You are a helpful assistant with access to functions."},
-    {"role": "user", "content": question}
-]
+FIREWORK_API_KEY = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
+os.environ["FIREWORKS_API_KEY"] = FIREWORK_API_KEY
 
 
-# Set up tools
-tool_add = {
-        "type": "function",
-        "function": {
-            "name": "add",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "first_int": {
-                        "type": "integer"
-                    },
-                    "second_int": {
-                        "type": "integer", 
-                    }
-                },
-                "required": ["first_int", "second_int"],
-            },
-        },
-    }
+llm = Fireworks(model = "accounts/fireworks/models/firefunction-v1", temperature = 0)
 
+# Function
+def multiply(a: int, b: int) -> int:
+    """Multiply two integers together."""
+    return a * b
 
-tools = [tool_add]
-
-
-# Combines the message prompt and tools
-chat_completion = client.chat.completions.create(
-    model="accounts/fireworks/models/mixtral-8x7b-instruct",
-    messages=messages,
-    tools=tools,
-    temperature=0.1
-)
-
-parsedOutput = chat_completion.choices[0].message.content
+multiply_tool = FunctionTool.from_defaults(fn = multiply)
 
 
 
-# Result
-# print(repr(chat_completion.choices[0].message.content))
-# print(chat_completion.choices[0].message.model_dump_json(indent=4))
-print(parsedOutput)
+# Agent
+agent = OpenAIAgent.from_tools(
+    llm = llm,
+    prompt = "hwchase17/structured-chat-agent", 
+    verbose = True,
+    tools = [multiply_tool])
 
-
-
-
-# Functions:
-def add(first_int: int, second_int: int) -> int:
-    print("called")
-    return first_int + second_int
+response = agent.chat("What is (5+10)*5?")
+print(str(response))
