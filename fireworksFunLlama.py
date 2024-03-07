@@ -31,13 +31,27 @@ def add(a: int, b: int) -> int:
     return a+b
 
 
+def quadraticEQ(a: int, b: int, c: int) -> int:
+    """Solve for x in the quadratic equation ax^2 + bx + c = 0"""
+    d = (numpy.square(b)) - (4*a*c)
+    if (d > 0) : 
+        print(f"discrimant is positive: d = {d}. Two solutions")
+        return (-b + numpy.sqrt(d))/(2*a), (-b - numpy.sqrt(d))/(2*a)
+    elif (d == 0):
+        print(f"discrimant is zero: d = {d}. One solution")
+        return -b/(2*a)
+    else: 
+        print(f"discrimant is negative: d = {d}. No real solutions", d)
+        return 420
+
 # --------------------------------------------------------- #
 # Step 2) Form a tool from the function and add it to the toolbox
 # --------------------------------------------------------- #
 multiply_tool = FunctionTool.from_defaults(fn = multiply)
 add_tool = FunctionTool.from_defaults(fn = add)
+quadraticEQ_tool = FunctionTool.from_defaults(fn = quadraticEQ)
 
-toolbox = [multiply_tool, add_tool]
+toolbox = [multiply_tool, add_tool, quadraticEQ_tool]
 
 # --------------------------------------------------------- #
 # Step 3) Construct an agent and add the toolbox at the parameter "tools" 
@@ -49,17 +63,23 @@ agent = OpenAIAgent.from_tools(
     tools = toolbox)
 
 
-# Note: If the agent is using function calling, it will be clear since "=== Calling Function ===" will be printed out.
-response = agent.chat("What is 5*(5+5)?")
+# Note1: If the agent is using function calling, it will be clear since "=== Calling Function ===" will be printed out.
+# Note2: Doing Arithmetic expression, paranthesis is important, for instance "5*5+5" will not result in function calling
+
+#response = agent.chat("What is 5*(5+5)?")
+#print(str(response))
+#print("___________________________________________")
+
+#response = agent.chat("What is (5*5)+5?")
+#print(str(response))
+#print("___________________________________________")
+
+response = agent.chat("What is x in this quadratic equation ((((2*x)^2)+6*x)+4)=0?")  # With paranthesis and operators "*"
 print(str(response))
 print("___________________________________________")
 
-response = agent.chat("What is (5*5)+5?")
+response = agent.chat("What is x in this quadratic equation 2x^2+6x+4=0?")  # Without paranthesis and operators
 print(str(response))
 print("___________________________________________")
 
 
-
-# Note2: When doing arithmetic expression, paranthesis is important, for instance "5*5+5" will not result in function calling
-response = agent.chat("What is 5*5+5?")
-print(str(response))
