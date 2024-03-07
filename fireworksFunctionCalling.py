@@ -21,6 +21,7 @@ def exponentiate(base: int, exponent: int) -> int:
     "Exponentiate the base to the exponent power."
     return base**exponent
 
+# Test of remote API-integrated tools - works :)
 @tool
 def get_weather_info(city: str, country: str):
     """Get the weather information"""
