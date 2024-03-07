@@ -2,6 +2,7 @@ import os
 from llama_index.llms.fireworks import Fireworks
 from llama_index.agent.openai import OpenAIAgent
 from llama_index.core.tools import BaseTool, FunctionTool
+from langchain_community.utilities import OpenWeatherMapAPIWrapper
 import numpy
 
 # --------------------------------------------------------- #
@@ -13,9 +14,9 @@ import numpy
 FIREWORK_API_KEY = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
 os.environ["FIREWORKS_API_KEY"] = FIREWORK_API_KEY
 
+
 # Instantiate the LLM
 llm = Fireworks(model = "accounts/fireworks/models/firefunction-v1", temperature = 0)
-
 
 
 # --------------------------------------------------------- #
@@ -44,14 +45,23 @@ def quadraticEQ(a: int, b: int, c: int):
         print(f"discrimant is negative: d = {d}. No real solutions")
         return 
 
+def get_weather_info(city: str, country: str):
+    """Get the weather information"""
+    os.environ["OPENWEATHERMAP_API_KEY"] =  "a15039154ac226a73909c312586ea4c8"
+    weather = OpenWeatherMapAPIWrapper()
+    weather_data = weather.run(f"{city},{country}")
+    return weather_data
+
 # --------------------------------------------------------- #
 # Step 2) Form a tool from the function and add it to the toolbox
 # --------------------------------------------------------- #
 multiply_tool = FunctionTool.from_defaults(fn = multiply)
 add_tool = FunctionTool.from_defaults(fn = add)
 quadraticEQ_tool = FunctionTool.from_defaults(fn = quadraticEQ)
+weather_tool = FunctionTool.from_defaults(fn = get_weather_info)
 
-toolbox = [multiply_tool, add_tool, quadraticEQ_tool]
+toolbox = [multiply_tool, add_tool, quadraticEQ_tool, weather_tool]
+
 
 # --------------------------------------------------------- #
 # Step 3) Construct an agent and add the toolbox at the parameter "tools" 
@@ -68,9 +78,9 @@ agent = OpenAIAgent.from_tools(
 # Step 4) Test the agent with different tools
 # --------------------------------------------------------- #
 
-# Note1: If the agent is using function calling, it will be clear since "=== Calling Function ===" will be printed out.
 
 # TEST 1: Using the add_tool and multiply_tool
+# Note: Doing Arithmetic expression, paranthesis is important, for instance "5*5+5" will not result in function calling
 
 # response = agent.chat("What is 5*(5+5)?")
 # print(str(response))
@@ -80,19 +90,23 @@ agent = OpenAIAgent.from_tools(
 # print(str(response))
 # print("___________________________________________")
 
-# Observations: 
-#   Doing Arithmetic expression, paranthesis is important, for instance "5*5+5" will not result in function calling
 
 
-# TEST 3: Using the quadraticEQ_tool
-response = agent.chat("What is x in this quadratic equation 2*x^2 + 2*x = 0?")  
+# TEST 2: Using the quadraticEQ_tool
+# Note: The quadratic equation format seems to work best when including all operators explicit (include "*" for multiplication)
+
+# response = agent.chat("What is x in this quadratic equation 2*x^2 + 2*x = 0?")  
+# print(str(response))
+# print("___________________________________________")
+
+
+# response = agent.chat("What is x in this quadratic equation 2*x^2 + 3*x = 0?")   # Example where result is a decimal
+# print(str(response))
+# print("___________________________________________")
+
+
+
+# TEST 3: 
+response = agent.chat("How is the weather today in Denmark, Nærum?")  
 print(str(response))
 print("___________________________________________")
-
-# Example where result is a decimal
-response = agent.chat("What is x in this quadratic equation 2*x^2 + 3*x = 0?")  
-print(str(response))
-print("___________________________________________")
-
-# Observartions: 
-#   The quadratic equation format seems to work best when including all operators explicit (include "*" for multiplication)
