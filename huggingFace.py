@@ -1,16 +1,9 @@
-from langchain_community.llms.huggingface_hub import HuggingFaceHub
 from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
 import os
-from getpass import getpass
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_models.huggingface import ChatHuggingFace
-from langchain.schema import (
-    HumanMessage,
-    SystemMessage,
-)
+
 
 # API-TOKEN from https://huggingface.co/settings/tokens
 HUGGINGFACEHUB_API_TOKEN = "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"
