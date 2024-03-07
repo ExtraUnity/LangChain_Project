@@ -26,23 +26,22 @@ def multiply(a: int, b: int) -> int:
     return a * b
 
 
-def square(a: int) -> int:
+def add(a: int, b: int) -> int:
     """Square an integer once with exponent of 2"""
-    return numpy.square(a)
+    return a+b
 
 
 # --------------------------------------------------------- #
 # Step 2) Form a tool from the function and add it to the toolbox
 # --------------------------------------------------------- #
 multiply_tool = FunctionTool.from_defaults(fn = multiply)
-square_tool = FunctionTool.from_defaults(fn = square)
+add_tool = FunctionTool.from_defaults(fn = add)
 
-toolbox = [multiply_tool, square_tool]
+toolbox = [multiply_tool, add_tool]
 
 # --------------------------------------------------------- #
 # Step 3) Construct an agent and add the toolbox at the parameter "tools" 
 # --------------------------------------------------------- #
-
 agent = OpenAIAgent.from_tools(
     llm = llm,
     prompt = "hwchase17/structured-chat-agent", 
@@ -50,5 +49,17 @@ agent = OpenAIAgent.from_tools(
     tools = toolbox)
 
 
-response = agent.chat("What is 5*5?")
+# Note: If the agent is using function calling, it will be clear since "=== Calling Function ===" will be printed out.
+response = agent.chat("What is 5*(5+5)?")
+print(str(response))
+print("___________________________________________")
+
+response = agent.chat("What is (5*5)+5?")
+print(str(response))
+print("___________________________________________")
+
+
+
+# Note2: When doing arithmetic expression, paranthesis is important, for instance "5*5+5" will not result in function calling
+response = agent.chat("What is 5*5+5?")
 print(str(response))
