@@ -52,6 +52,9 @@ prompt = hub.pull("hwchase17/structured-chat-agent")
 agent = create_structured_chat_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
 #print(agent_executor.invoke({"input": "Take 3 to the fifth power and multiply that by the sum of twelve and three. Finally square the result"}))
-agent_io = agent_executor.invoke({"input": "Give me the result of 2 * 3 + 2 and then tell me the current weather in Denmark, Copenhagen."})
-print("AI: " + agent_io.get("input"))
-print("User:" + agent_io.get("output"))
+#agent_io = agent_executor.invoke({"input": "Give me the result of 2 * 3 + 2 and then tell me the current weather in Denmark, Copenhagen."})
+agent_io = agent_executor.invoke({"input": "Get me the current weather temperature from Denmark, Copenhagen, and Japan, Tokyo, and then multiply the two temperatures together."})
+
+
+print("User: " + agent_io.get("input"))
+print("AI:" + agent_io.get("output"))
