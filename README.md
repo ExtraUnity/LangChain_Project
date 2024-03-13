@@ -16,8 +16,6 @@
     conda activate <env_name>
     ```
 
-
-
 ## Export environment to yaml
 
 ### For Windows
@@ -29,6 +27,7 @@
 ```
     conda env export --no-builds | grep -v "^prefix: " > environment.yaml
 ```
+
 
 ## Update environment from yaml
 ```
