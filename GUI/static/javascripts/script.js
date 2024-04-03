@@ -8,6 +8,16 @@ function addMessage() {
         messageContainer.appendChild(message);
         messageInput.value = "";
     } else {
-        alert("Please enter a message.");
+        alert("type")
     }
 }
+
+
+var input = document.getElementById("messageInput");
+input.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+    event.preventDefault();
+    document.getElementById("addMessage").click();
+    }
+});
+    

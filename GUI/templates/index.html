@@ -26,7 +26,17 @@
     <div class="container">
         <div id="messageContainer"></div> <!-- Text messages appear here -->
         <input type="text" id="messageInput" placeholder="Enter your message">
-        <button onclick="addMessage()">Add Message</button>
+        <button id="addMessage" onclick="addMessage()">Add Message</button>
     </div>
+
+    <script>
+        var input = document.getElementById("messageInput");
+        input.addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById("addMessage").click();
+          }
+        });
+    </script>
 </body>
 </html>
