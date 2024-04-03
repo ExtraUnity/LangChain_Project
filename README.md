@@ -41,15 +41,18 @@ If you want to refresh your own environment, after packages has been added to th
 To open the application GUI.
 
 ### For Windows
+Make sure you are in the project folder directory "LANGCHAIN_PROJECT".
+Then run the runflask.ps1 powershell script by entering:
+
 ```
-1) Set the FLASK_APP environment variable: "set FLASK_APP=GUI/main.py"
-2) Enable developer mode by running: "set FLASK_ENV=development"
-3) Finally run the web application: "flask run"
+.\runflask.ps1
+```
 ```
 
 ### For Mac/Linux
+Make sure you are in the project folder directory "LANGCHAIN_PROJECT".
+Then run the runflask.sh bash script by entering:
+
 ```
-1) export the FLASK_APP environment variable: "set FLASK_APP=GUI/main.py"
-2) Enable developer mode by running: "export FLASK_ENV=development"
-3) Finally run the web application: "flask run"
+./runflask.sh
 ```
