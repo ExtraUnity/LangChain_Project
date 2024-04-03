@@ -42,14 +42,14 @@ To open the application GUI.
 
 ### For Windows
 ```
-1) Set the FLASK_APP environment variable: "set FLASK_APP=gui.py"
+1) Set the FLASK_APP environment variable: "set FLASK_APP=GUI/main.py"
 2) Enable developer mode by running: "set FLASK_ENV=development"
 3) Finally run the web application: "flask run"
 ```
 
 ### For Mac/Linux
 ```
-1) export the FLASK_APP environment variable: "set FLASK_APP=gui.py"
+1) export the FLASK_APP environment variable: "set FLASK_APP=GUI/main.py"
 2) Enable developer mode by running: "export FLASK_ENV=development"
 3) Finally run the web application: "flask run"
 ```
