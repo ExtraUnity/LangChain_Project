@@ -3,10 +3,18 @@
     left: 0;
     top: 0;
     height: 100%;
-    width: 200px; /* Adjust width as needed */
+    width: 250px; 
     background-color: #333;
     padding-top: 20px;
     text-align: center;
+}
+
+.navbar topbar {
+    display: block;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    text-decoration: none;
 }
 
 .navbar leftNavBar {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- import .css files -->
-<link rel="stylesheet" href="static/css/messageboard.css"> 
+<link rel="stylesheet" href="static/css/messagecontainer.css"> 
 <link rel="stylesheet" href="static/css/navbar.css">
 
 <!-- import .js scripts -->
@@ -15,16 +15,17 @@
     <title>Message Board</title>
 </head> 
 <body>
-    <!-- Navigation Bar -->
+    <!-- Leftside Navigation Bar -->
     <div class="navbar">
+        <topBar href="#">Topbar Title</topBar>
         <leftNavBar href="#">Button 1</leftNavBar>
         <leftNavBar href="#">Button 2</leftNavBar>
-        <leftNavBar href="#">Button 3</a>
+        <leftNavBar href="#">Button 3</leftNavBar>
     </div>
 
     <!-- Message Board -->
-    <div class="container">
-        <div id="messageContainer"></div> <!-- Text messages appear here -->
+    <div class="container" style="margin-left: 250px;">
+        <div id="messageContainer"></div> 
         <input type="text" id="messageInput" placeholder="Enter your message">
         <button id="addMessage" onclick="addMessage()">Add Message</button>
     </div>
