@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "Setting Flask App Environment..."
 set FLASK_APP=GUI/main.py
+$env:FLASK_APP = "GUI/main.py"
 sleep 1
 
 echo "Setting Flask Environment to Developer Mode..."
