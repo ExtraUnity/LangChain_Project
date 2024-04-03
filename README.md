@@ -17,6 +17,8 @@
     ```
 
 ## Export environment to yaml
+If you want to install a package and add it to the environment, run the 'conda env' command
+given below depending on your system OS:
 
 ### For Windows
 ```
@@ -30,6 +32,22 @@
 
 
 ## Update environment from yaml
+If you want to refresh your own environment, after packages has been added to the environment:
 ```
     conda env update -n <env_name> -f environment.yaml --prune
 ```
+
+## Running Flask Web GUI
+To open the application GUI.
+
+### For Windows
+```
+1) set FLASK_APP=hello.py
+2) flask run
+3) The http:// link will then appear in the Terminal, where you can click on it.
+```
+
+### For Mac/Linux
+1) export FLASK_APP=hello.py
+2) flask run
+3) The http:// link will then appear in the Terminal, where you can click on it.
