@@ -5,13 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Message Board</title>
     <link rel="stylesheet" href="static/css/style.css"> <!-- Forbinder html til style.css -->
+    <link rel="stylesheet" href="static/css/navbar.css"> <!-- Forbinder html til style.css -->
 
 </head> 
 <body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="#">Button 1</a>
+        <a href="#">Button 2</a>
+        <a href="#">Button 3</a>
+    </div>
+
+    <!-- Message Board -->
     <div class="container">
+        <div id="messageContainer"></div>
         <input type="text" id="messageInput" placeholder="Enter your message">
         <button onclick="addMessage()">Add Message</button>
-        <div id="messageContainer"></div>
     </div>
     <script src="static/javascripts/script.js"></script>
 </body>
