@@ -12,12 +12,8 @@ function addMessage() {
     }
 }
 
-
-var input = document.getElementById("messageInput");
-input.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-    event.preventDefault();
-    document.getElementById("addMessage").click();
+function enterPress(ele) {
+    if (ele.keyCode === 13) {
+        addMessage();
     }
-});
-    
+}
