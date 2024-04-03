@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- import .css files -->
+<link rel="stylesheet" href="static/css/messageboard.css"> 
+<link rel="stylesheet" href="static/css/navbar.css">
+
+<!-- import .js scripts -->
+<script src="static/javascripts/script.js"></script> <!-- Connects html to .js -->
+
+
+<!-- Main -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Message Board</title>
-    <link rel="stylesheet" href="static/css/messageboard.css"> <!-- Forbinder html til style.css -->
-    <link rel="stylesheet" href="static/css/navbar.css"> <!-- Forbinder html til style.css -->
-
 </head> 
 <body>
     <!-- Navigation Bar -->
@@ -18,10 +24,9 @@
 
     <!-- Message Board -->
     <div class="container">
-        <div id="messageContainer"></div>
+        <div id="messageContainer"></div> <!-- Text messages appear here -->
         <input type="text" id="messageInput" placeholder="Enter your message">
         <button onclick="addMessage()">Add Message</button>
     </div>
-    <script src="static/javascripts/script.js"></script>
 </body>
 </html>
