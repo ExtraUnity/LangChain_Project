@@ -5,7 +5,7 @@ function addMessage() {
     if (messageInput.value.trim() !== "") {
         var message = document.createElement("div");
         message.textContent = messageInput.value;
-        messageContainer.appendChild(message);
+        messageContainer.prepend(message);
         messageInput.value = "";
     } else {
         alert("type")

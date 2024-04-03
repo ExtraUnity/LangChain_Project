@@ -46,11 +46,18 @@ body {
 
     /*Display window of input message*/
     #messageContainer {
-        position: center;
-        margin-bottom: 20px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        width: 300px;
-        margin: 0 auto;
+        margin:4px, 4px;
+        padding:4px;
+        background-color: white;
+        width: 1620px;
+        height: 800px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align:justify;
+    }
+
+    /* Reverse the order of the messages */
+    .reverse-container {
+        display: flex;
+        flex-direction: column-reverse; 
     }
