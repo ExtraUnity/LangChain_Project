@@ -8,7 +8,7 @@ export FLASK_ENV=development
 sleep 1
 
 echo "Running Flask..."
-flask run
+flask run --reload -h 0.0.0.0
 sleep 1
 
 echo "Done..."
