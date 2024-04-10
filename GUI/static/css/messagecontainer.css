@@ -50,10 +50,11 @@ body {
         padding:4px;
         background-color: white;
         width: 1620px;
-        height: 800px;
+        height: 600px;
         overflow-x: hidden;
         overflow-y: auto;
         text-align:justify;
+        
     }
 
     /* Reverse the order of the messages */
