@@ -51,7 +51,7 @@ body {
         background-color: white;
         width: 1620px;
         height: 600px;
-        overflow-x: hidden;
+        overflow-x: auto;
         overflow-y: auto;
         text-align:justify;
         

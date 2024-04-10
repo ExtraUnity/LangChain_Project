@@ -4,7 +4,7 @@ async function addMessage() {
 
     if (messageInput.value.trim() !== "") {
         var message = document.createElement("div");
-        message.textContent = messageInput.value;
+        message.textContent = "You: "+messageInput.value;
 
         // User input message
         messageContainer.append(message);
@@ -13,7 +13,7 @@ async function addMessage() {
         // Chat bot response
         var fetchAIResponse = await invokePythonFunction(message.textContent); // Wait for the response
         var botResponse = document.createElement("div");
-        botResponse.textContent = fetchAIResponse.result; // Assuming result contains the response
+        botResponse.textContent = "Bob the bot: "+fetchAIResponse.result; // Assuming result contains the response
         messageContainer.append(botResponse);
 
 

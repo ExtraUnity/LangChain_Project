@@ -41,14 +41,6 @@ def fireworks(message):
     llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
 
 
-    #Chains
-    # llm_with_tools = llm.bind_tools([multiply], tool_choice={"type": "function", "function": {"name": "multiply"}})
-    # tool_chain = (
-    #     llm_with_tools 
-    #     | JsonOutputKeyToolsParser(key_name="multiply", first_tool_only=True) 
-    #     | multiply 
-    # )
-    # print(tool_chain.invoke("what's 3 * 12"))
 
 
     # Agent
