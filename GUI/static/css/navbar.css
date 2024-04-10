@@ -15,6 +15,10 @@
     padding: 10px;
     margin-bottom: 10px;
     text-decoration: none;
+    font-weight: bold;
+    font-size: 20px;
+    background: #208a0b;
+
 }
 
 .navbar leftNavBar {
