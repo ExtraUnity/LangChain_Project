@@ -11,7 +11,7 @@ async function addMessage() {
         messageInput.value = "";
         
         // Chat bot response
-        var fetchAIResponse = await invokePythonFunction(); // Wait for the response
+        var fetchAIResponse = await invokePythonFunction(message.textContent); // Wait for the response
         var botResponse = document.createElement("div");
         botResponse.textContent = fetchAIResponse.result; // Assuming result contains the response
         messageContainer.append(botResponse);
@@ -30,9 +30,10 @@ function enterPress(ele) {
 }
 
 
-function invokePythonFunction() {
+function invokePythonFunction(text) {
     // Make an AJAX request to the Flask server
-    return fetch('/invoke_python_function')
+
+    return fetch('/invoke_python_function?prompt='+text)
       .then(response => response.json())
       .then(data => {
         // Return the result from Python

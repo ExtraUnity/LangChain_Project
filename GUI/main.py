@@ -17,4 +17,6 @@ def fetchAIResponse():
 # Define a route to invoke the function
 @app.route('/invoke_python_function', methods=['GET'])
 def invoke_python_function():
-    return jsonify(result=fireworks())
+    prompt = request.args.get('prompt')
+    return jsonify(result=fireworks(prompt))
+

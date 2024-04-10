@@ -34,7 +34,7 @@ def get_weather_info(city: str, country: str):
     return weather_data
 
 
-def fireworks():
+def fireworks(message):
 
     # os.environ["OPENAI_API_KEY"] = "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"
     os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
@@ -56,8 +56,8 @@ def fireworks():
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
-
-    agent_io = agent_executor.invoke({"input": "Take 3 to the fifth power and multiply that by the sum of twelve and three. Finally square the result"})
+    print(message)
+    agent_io = agent_executor.invoke({"input": message})
     #agent_io = agent_executor.invoke({"input": "Tell me the current weather in Denmark, Copenhagen."})
     #agent_io = agent_executor.invoke({"input": "Get me the current weather temperature from Denmark, Copenhagen, and Japan, Tokyo, and then multiply the two temperatures together."})
 
