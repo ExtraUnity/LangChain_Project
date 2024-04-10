@@ -8,11 +8,6 @@ def index():
 
 
 
-# Your Python function
-def fetchAIResponse():
-    # Do something here
-
-    return fireworks
 
 # Define a route to invoke the function
 @app.route('/invoke_python_function', methods=['GET'])
