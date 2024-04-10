@@ -47,7 +47,7 @@ Then run the runflask.ps1 powershell script by entering:
 ```
 .\runflask.ps1
 ```
-```
+
 
 ### For Mac/Linux
 Make sure you are in the project folder directory "LANGCHAIN_PROJECT".
