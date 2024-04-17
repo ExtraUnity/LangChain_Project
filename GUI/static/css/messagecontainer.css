@@ -22,6 +22,7 @@ body {
     /*Input message box*/
     input[type="text"] {
         padding: 10px;
+        width: 60%;
         margin-right: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
@@ -49,11 +50,12 @@ body {
         margin:4px, 4px;
         padding:4px;
         background-color: white;
-        width: 1620px;
-        height: 600px;
+        width: 174vh;
+        height: 41vw;
         overflow-x: auto;
         overflow-y: auto;
         text-align:justify;
+
         
     }
 
