@@ -1,3 +1,6 @@
+
+/* Got inspiration from https://moderncss.dev/pure-css-custom-styled-radio-buttons/ */
+
 :root {
     --form-control-color: white;
   }
@@ -14,18 +17,17 @@
   
   form {
     display: grid;
-    place-content: center;
-    min-height: 100vh;
+    place-content: left;
+    margin-left: 10px;
   }
   
   .form-control {
-    font-family: system-ui, sans-serif;
     font-size: 1.5rem;
     line-height: 1.1;
     display: grid;
     grid-template-columns: 1em auto;
     gap: 0.5em;
-    color: white;
+    color: var(--form-control-color);
   }
   
   .form-control + .form-control {
@@ -47,7 +49,7 @@
     margin: 0;
   
     font: inherit;
-    color: white;
+    color: var(--form-control-color);
     width: 1.15em;
     height: 1.15em;
     border: 0.15em solid currentColor;

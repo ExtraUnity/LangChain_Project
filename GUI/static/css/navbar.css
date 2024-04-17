@@ -6,7 +6,10 @@
     width: 250px; 
     background-color: #333;
     padding-top: 20px;
-    text-align: center;
+    text-align: left;
+    place-items: top;
+    display: flex;
+    flex-direction: column;
 }
 
 .navbar topbar {
@@ -31,4 +34,17 @@
 
 .navbar leftNavBar:hover {
     background-color: #555;
+}
+
+.navbar #APIKeyInput {
+    display: block;
+    width: 90%; /* Adjust width as needed */
+    padding: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    margin-top: auto;
+    border: 1px solid #ccc; /* Add border */
+    border-radius: 5px; /* Add border radius for rounded corners */
+    background-color: #fff; /* Add background color */
+    color: #333; /* Add text color */
 }
