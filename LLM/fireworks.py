@@ -2,9 +2,9 @@ import os
 from langchain import hub
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_community.utilities import OpenWeatherMapAPIWrapper
-from langchain_core.output_parsers.openai_tools import JsonOutputKeyToolsParser
 from langchain_core.tools import tool
 from langchain_fireworks import ChatFireworks
+from langchain_core.prompts import ChatPromptTemplate
 
 
 ######################################################
@@ -51,19 +51,31 @@ def get_weather_info(city: str, country: str):
 ######################################################
 # The LLM setup
 ######################################################
-def fireworks(message):
+def fireworks(user_input):
+    print(user_input)
 
-    # os.environ["OPENAI_API_KEY"] = "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"
+    # API key for fireworks AI:
     os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
     llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
 
-    # Agent
+    # Prompting:
+    chat_template = ChatPromptTemplate.from_messages([
+        ("system", 
+         """
+         You are a helpful AI bot. Your name is Bob the Bot.
+         Everytime you answer a question that requires calculation, you will always use your tools and function calling to do so.
+         """),
+        ("human", 
+         user_input)
+    ])
+
+    # Agent:
     tools = [add, subtract, multiply, divide, exponentiate, get_weather_info]
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
-    print(message)
-    agent_io = agent_executor.invoke({"input": message})
+    agent_io = agent_executor.invoke({"input": chat_template})
+
     #agent_io = agent_executor.invoke({"input": "Tell me the current weather in Denmark, Copenhagen."})
     #agent_io = agent_executor.invoke({"input": "Get me the current weather temperature from Denmark, Copenhagen, and Japan, Tokyo, and then multiply the two temperatures together."})
 
