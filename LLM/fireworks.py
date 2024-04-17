@@ -5,11 +5,7 @@ from langchain_community.utilities import OpenWeatherMapAPIWrapper
 from langchain_core.tools import tool
 from langchain_fireworks import ChatFireworks
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.messages import AIMessage, HumanMessage
-from langchain.agents import AgentExecutor, Tool, ZeroShotAgent
-from langchain.chains import LLMChain
-from langchain.memory import ConversationBufferMemory
-from langchain_community.utilities import GoogleSearchAPIWrapper
+from langchain.agents import AgentExecutor
 import numpy
 
 
@@ -88,19 +84,9 @@ def fireworks(user_input):
     )
     
 
-    agent_io = agent_executor.invoke({"input": chat_template})
+    # NOTE: Hvis man bruger chat_template, så virker flere tools ikke på én gang.
+    agent_io = agent_executor.invoke({"input": user_input})
     
-    test= agent_executor.invoke(
-        {
-            "input": chat_template,    
-            "chat_history": [
-            HumanMessage(content=user_input),
-            
-            ]
-        }
-    )
-
-
 
     #agent_io = agent_executor.invoke({"input": "Tell me the current weather in Denmark, Copenhagen."})
     #agent_io = agent_executor.invoke({"input": "Get me the current weather temperature from Denmark, Copenhagen, and Japan, Tokyo, and then multiply the two temperatures together."})
