@@ -1,3 +1,4 @@
+
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -5,9 +6,29 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+    background-color: #212121;
 }
 
-/*Message Board container (grey area)*/
+    /* message container - message exchange view box*/
+    #messageContainer {
+        margin:4px, 4px;
+        padding:4px;
+        background-color: #333;
+        width: 173.5vh;
+        height: 38vw;
+        overflow-x: auto;
+        overflow-y: auto;
+        text-align:justify;
+        border: 0.1px;
+        border-radius: 4px;
+        border-color: black;
+        font-size: 18px;
+        font-weight:200;
+        color: white;
+    }
+
+
+/* container (around the text box)*/
 .container {
     text-align: bottom;
     position: fixed;
@@ -15,22 +36,22 @@ body {
     left: 0;
     width: 100%;
     padding: 20px;
-    background-color: #f0f0f0;
-    font-size: 18px;
+    background-color: #212121;
+
        
 }
 
-    /*Input message box*/
+    /* "Enter your message" - input box*/
     input[type="text"] {
         padding: 10px;
-        width: 60%;
+        width: 50%;
         margin-right: 10px;
-        border: 1px solid #ccc;
+        border: 1px solid  #ffffff;
         border-radius: 5px;
         font-size: 16px;
     }
 
-    /*Send (Enter) button*/
+    /*Send button*/
     button {
         margin-top: 50px;
         padding: 10px 20px;
@@ -47,21 +68,6 @@ body {
         background-color: #0056b3;
     }
 
-    /*Display window of input message*/
-    #messageContainer {
-        margin:4px, 4px;
-        padding:4px;
-        background-color: white;
-        width: 173.5vh;
-        height: 38vw;
-        overflow-x: auto;
-        overflow-y: auto;
-        text-align:justify;
-        border: 1px solid;
-        border-radius: 4px;
-        border-color: black;
-        
-    }
 
     /* Reverse the order of the messages */
     .reverse-container {
