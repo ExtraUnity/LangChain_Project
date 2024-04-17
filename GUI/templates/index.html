@@ -3,6 +3,7 @@
 <!-- import .css files -->
 <link rel="stylesheet" href="static/css/messagecontainer.css"> 
 <link rel="stylesheet" href="static/css/navbar.css">
+<link rel="stylesheet" href="static/css/radiobutton.css">
 
 <!-- import .js scripts -->
 <script src="static/javascripts/script.js"></script> <!-- Connects html to .js -->
@@ -20,9 +21,17 @@
     <!-- Leftside Navigation Bar -->
     <div class="navbar">
         <topBar href="#">LangChain Project</topBar>
-        <leftNavBar href="#">Button 1</leftNavBar>
-        <leftNavBar href="#">Button 2</leftNavBar>
-        <leftNavBar href="#">Button 3</leftNavBar>
+        <form action="">
+            <label class="form-control">
+              <input type="radio" name="radio" />
+              Radio
+            </label>
+          
+            <label class="form-control">
+              <input type="radio" name="radio" checked />
+              Radio - checked
+            </label>
+          </form>
     </div>
 
     <!-- Message Board -->
