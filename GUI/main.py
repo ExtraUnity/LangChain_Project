@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from flask import Flask, jsonify, request
-from LLM.fireworksFunctionCalling import fireworks
+from LLM.fireworks import fireworks
 app = Flask(__name__)
 @app.route("/")
 def index():

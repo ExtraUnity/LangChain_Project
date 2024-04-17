@@ -7,6 +7,18 @@ from langchain_core.tools import tool
 from langchain_fireworks import ChatFireworks
 
 
+######################################################
+# Arithmetic Tools
+######################################################
+@tool
+def add(first_int: int, second_int: int) -> int:
+    """Multiply two integers together."""
+    return first_int + second_int
+
+@tool
+def subtract(first_int: int, second_int: int) -> int:
+    """Multiply two integers together."""
+    return first_int - second_int
 
 @tool
 def multiply(first_int: int, second_int: int) -> int:
@@ -14,17 +26,20 @@ def multiply(first_int: int, second_int: int) -> int:
     return first_int * second_int
 
 @tool
-def add(first_int: int, second_int: int) -> int:
+def divide(first_int: int, second_int: int) -> int:
     """Multiply two integers together."""
-    return first_int + second_int
+    return first_int // second_int
+
 
 @tool
 def exponentiate(base: int, exponent: int) -> int:
-    "Exponentiate the base to the exponent power."
+    """Exponentiate the base to the exponent power."""
     return base**exponent
 
 
-# Test of remote API-integrated tools - works :)
+######################################################
+# Remote API Tools (some requires API keys)
+######################################################
 @tool
 def get_weather_info(city: str, country: str):
     """Get the weather information"""
@@ -33,18 +48,17 @@ def get_weather_info(city: str, country: str):
     weather_data = weather.run(f"{city},{country}")
     return weather_data
 
-
+######################################################
+# The LLM setup
+######################################################
 def fireworks(message):
 
     # os.environ["OPENAI_API_KEY"] = "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"
     os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
     llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
 
-
-
-
     # Agent
-    tools = [multiply, add, exponentiate, get_weather_info]
+    tools = [add, subtract, multiply, divide, exponentiate, get_weather_info]
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
