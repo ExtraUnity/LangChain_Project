@@ -13,5 +13,8 @@ def index():
 @app.route('/invoke_python_function', methods=['GET'])
 def invoke_python_function():
     prompt = request.args.get('prompt')
-    return jsonify(result=fireworks(prompt))
+    llm = request.args.get('llm')
+    apiKey = request.args.get('api')
+    print(apiKey)
+    return jsonify(result=fireworks(prompt, apiKey))
 

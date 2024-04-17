@@ -53,11 +53,17 @@ def get_weather_info(city: str, country: str):
 ######################################################
 # The LLM setup
 ######################################################
-def fireworks(user_input):
+def fireworks(user_input, APIKey):
     print(user_input)
+    
+    print(APIKey)
 
     # API key for fireworks AI:
-    os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
+    if(APIKey == "") :
+        os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
+    else :
+        os.environ["FIREWORKS_API_KEY"] = APIKey
+
     llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
 
     # Prompting:
