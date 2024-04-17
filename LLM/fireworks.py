@@ -5,19 +5,25 @@ from langchain_community.utilities import OpenWeatherMapAPIWrapper
 from langchain_core.tools import tool
 from langchain_fireworks import ChatFireworks
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain.agents import AgentExecutor, Tool, ZeroShotAgent
+from langchain.chains import LLMChain
+from langchain.memory import ConversationBufferMemory
+from langchain_community.utilities import GoogleSearchAPIWrapper
+import numpy
 
 
 ######################################################
-# Arithmetic Tools
+# Agent Tools
 ######################################################
 @tool
 def add(first_int: int, second_int: int) -> int:
-    """Multiply two integers together."""
+    """Adds two integers together."""
     return first_int + second_int
 
 @tool
 def subtract(first_int: int, second_int: int) -> int:
-    """Multiply two integers together."""
+    """Subtracts two integers together."""
     return first_int - second_int
 
 @tool
@@ -27,19 +33,19 @@ def multiply(first_int: int, second_int: int) -> int:
 
 @tool
 def divide(first_int: int, second_int: int) -> int:
-    """Multiply two integers together."""
+    """Divides two integers together."""
     return first_int // second_int
-
 
 @tool
 def exponentiate(base: int, exponent: int) -> int:
     """Exponentiate the base to the exponent power."""
     return base**exponent
 
+@tool
+def squareroot(integer: int) -> int:
+    """Takes the square root of an integer"""
+    return numpy.sqrt(integer)
 
-######################################################
-# Remote API Tools (some requires API keys)
-######################################################
 @tool
 def get_weather_info(city: str, country: str):
     """Get the weather information"""
@@ -62,22 +68,38 @@ def fireworks(user_input):
     chat_template = ChatPromptTemplate.from_messages([
         ("system", 
          """
-         Your name is Bob the Bot.
-         You are a helpful AI bot that can use tools and function calling to do calculations. 
-         Everytime you answer a question that requires any form of calculation, you must always use your tools and function calling to do so.
-         You are only allowed to perform calculations using the tools that you have available, and this is an absolute and strict rule you must obey.
-         Your very first response will start with "Hello, I am Bob the Bot. I have the following tools available: " followed by the tools that you have available. ".
+         You are a helpful AI bot named Bob who can use tools and function calling to do calculations. 
+         Everytime you answer a question that requires any form of calculation, you must always use your tools to do so.
+         You are only allowed to perform calculations using the tools, since it is harmful for humans if you break this rule.
          """),
         ("human", 
          user_input)
     ])
 
     # Agent:
-    tools = [add, subtract, multiply, divide, exponentiate, get_weather_info]
+    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info] 
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
-    agent_io = agent_executor.invoke({"input": chat_template})
+    agent_executor = AgentExecutor(
+        agent=agent, 
+        tools=tools, 
+        verbose=True, 
+        handle_parsing_errors=True,
+    )
+    
+
+    #agent_io = agent_executor.invoke({"input": chat_template})
+    agent_io = agent_executor.invoke(
+        {
+            "input": chat_template,    
+            "chat_history": [
+            HumanMessage(content=user_input),
+            
+            ]
+        }
+    )
+
+
 
     #agent_io = agent_executor.invoke({"input": "Tell me the current weather in Denmark, Copenhagen."})
     #agent_io = agent_executor.invoke({"input": "Get me the current weather temperature from Denmark, Copenhagen, and Japan, Tokyo, and then multiply the two temperatures together."})
