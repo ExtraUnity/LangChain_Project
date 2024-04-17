@@ -88,8 +88,9 @@ def fireworks(user_input):
     )
     
 
-    #agent_io = agent_executor.invoke({"input": chat_template})
-    agent_io = agent_executor.invoke(
+    agent_io = agent_executor.invoke({"input": chat_template})
+    
+    test= agent_executor.invoke(
         {
             "input": chat_template,    
             "chat_history": [
