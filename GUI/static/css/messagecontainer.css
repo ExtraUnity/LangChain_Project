@@ -24,6 +24,7 @@ body {
         font-size: 18px;
         font-weight:200;
         color: white;
+        line-height: 30px;
     }
 
 
@@ -39,6 +40,8 @@ body {
 
        
 }
+
+
 
     /* "Enter your message" - input box*/
     input[type="text"] {
