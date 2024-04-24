@@ -6,6 +6,9 @@ from langchain_core.tools import tool
 from langchain_fireworks import ChatFireworks
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.agents import AgentExecutor
+from langchain_core.messages import HumanMessage
+from langchain.agents import AgentExecutor
+from langchain.agents import AgentExecutor
 import numpy
 
 
@@ -94,13 +97,23 @@ def fireworks(user_input, APIKey):
         handle_parsing_errors=True,
     )
     
-
-    # NOTE: Hvis man bruger chat_template, så virker flere tools ikke på én gang.
-    agent_io = agent_executor.invoke({"input": user_input})
     
-
+    #agent_io = agent_executor.invoke({"input": user_input})
     #agent_io = agent_executor.invoke({"input": "Tell me the current weather in Denmark, Copenhagen."})
     #agent_io = agent_executor.invoke({"input": "Get me the current weather temperature from Denmark, Copenhagen, and Japan, Tokyo, and then multiply the two temperatures together."})
-
-
-    return (agent_io.get("output"))
+    #result = agent_io.get("output")
+    
+    
+    # NOTE: Hvis man bruger chat_template, så virker flere tools ikke på én gang, da det forstyrrer dens process?
+    test= agent_executor.invoke(
+        {
+            "input": chat_template,    
+            "chat_history": [
+            HumanMessage(content=user_input),
+            
+            ]
+        }
+    )
+    testResult = test.get("output")
+    
+    return testResult

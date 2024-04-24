@@ -24,7 +24,7 @@ async function addMessage() {
         // Chat bot response
         var fetchAIResponse = await invokePythonFunction(message.textContent, llm, apiKey.value); // Wait for the response
         var botResponse = document.createElement("div");
-        botResponse.textContent = "Bob the bot: "+fetchAIResponse.result; // Assuming result contains the response
+        botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
         messageContainer.append(botResponse);
 
 
