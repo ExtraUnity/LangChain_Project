@@ -70,16 +70,21 @@ def fireworks(user_input, APIKey):
     chat_template = ChatPromptTemplate.from_messages([
         ("system", 
          """
-         You are a helpful AI bot named Bob who can use tools and function calling to do calculations. 
-         Everytime you answer a question that requires any form of calculation, you must always use your tools to do so.
-         You are only allowed to perform calculations using the tools, since it is harmful for humans if you break this rule.
+         You are a helpful AI chat bot named Bob who can use tools and function calling to do calculations. 
+         Every time you answer a question that requires any form of calculation, you must always use your tools to do so. 
+         You must follow the rule which states that you are only allowed to perform calculations using the provided tools. 
+         If you break the rule, it could be harmful to humans and cause irreversible damage. 
+         For example, you are allowed to calculate what 2 + 2 is, since you have the addition tool in your toolbox. 
+         You are also allowed to give information about the current weather, since you have the getWeatherInfo tool. 
+         But you are not allowed to perform calculations on division, since you do not have the tools to do so. 
+         If you are not able to perform a calculation due to lack of tools, you will inform the user of this and not perform the calculation.
          """),
         ("human", 
          user_input)
     ])
 
     # Agent:
-    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info] 
+    tools = [add, subtract, multiply, exponentiate, squareroot, get_weather_info] 
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(

@@ -1,2 +1,4 @@
 .vscode
 GUI/__pycache__/
+GUI/__pycache__/main.cpython-311.pyc
+LLM/__pycache__/fireworks.cpython-311.pyc
