@@ -10,6 +10,12 @@ from langchain_core.messages import HumanMessage
 from langchain.agents import AgentExecutor
 from langchain.agents import AgentExecutor
 import numpy
+import asyncio
+from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+import os
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_community.chat_models.huggingface import ChatHuggingFace
 
 
 ######################################################
@@ -71,6 +77,55 @@ def get_weather_info(city: str, country: str):
     weather = OpenWeatherMapAPIWrapper()
     weather_data = weather.run(f"{city},{country}")
     return weather_data
+
+######################################################
+# Setup guardrails
+######################################################
+def topical_guardrail(user_request):
+    print("Checking topical guardrail")
+    os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
+    # LLM choice from HuggingFace here:
+    repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
+
+    # Instantiate the LLM
+    llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", 
+         """Your role is to categorise the user request into topics. 
+         You can only respond in lists formatted as [topic1, topic2] etc.
+         """),
+        ("user", "{user_request}")
+    ])
+
+    output_parser = StrOutputParser()
+
+    chain = prompt | llm | output_parser
+    topics = chain.invoke({"user_request": user_request})
+    print(topics)
+
+    prompt2 = ChatPromptTemplate.from_messages([
+        ("system", """
+         Your role is assess whether a list of topics are allowed. 
+         You can ONLY respond with 'allowed' or 'not_allowed'. 
+         The allowed topic list is [Weather, Multiplication]. 
+         If the user list does contains relevant topics, respond exactly 'allowed'. 
+         If the user list contains irrelevant topics, respond exactly 'not_allowed'
+
+         Examples:
+         [Weather, Celebrity Age] -> not_allowed
+         [Temperature] -> allowed
+         [Weather, Age] -> not_allowed
+
+         """),
+        ("user", "{topics}")
+    ])
+    chain = prompt2 | llm | output_parser
+    answer = chain.invoke({"topics": topics})
+    print(answer)
+    return answer
+
+
 
 ######################################################
 # The LLM setup
