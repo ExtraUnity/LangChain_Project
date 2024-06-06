@@ -76,16 +76,6 @@ def get_weather_info(city: str, country: str):
 #######
 # Chat history: 
 chatHistList = []
-def chathistory(input):
-    chatHistList.append(input)
-    
-    chatHistString = ' '.join([str(sentence) for sentence in chatHistList])
-    # NOTE: Evt. mulighed for at lave en filter her.
-
-    print("Chat history: " + chatHistString)
-    return chatHistString
-
-
 
 
 ######################################################
@@ -122,12 +112,11 @@ def fireworks(user_input, APIKey):
     agent_io = agent_executor.invoke(
     {
         "input": user_input,
-        "chat_history": [
-            HumanMessage(content=chathistory(user_input)),
-        ],
+        "chat_history": chatHistList,
     }
     )
     
     result = agent_io.get("output")
-    chatHistList.append(result)
+    chatHistList.append(HumanMessage(user_input))
+    chatHistList.append(AIMessage(result))
     return result
