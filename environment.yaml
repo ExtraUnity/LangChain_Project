@@ -4,7 +4,7 @@ channels:
   - conda-forge
 dependencies:
   - _libgcc_mutex=0.1
-  - _openmp_mutex=4.5
+#  - _openmp_mutex=4.5
   - aiohttp=3.9.3
   - aiosignal=1.3.1
   - anyio=4.3.0
@@ -31,14 +31,14 @@ dependencies:
   - jsonpointer=2.4
   - langchain=0.1.9
   - langsmith=0.1.10
-  - ld_impl_linux-64=2.40
+#  - ld_impl_linux-64=2.40
   - libffi=3.4.4
-  - libgcc-ng=13.2.0
+#  - libgcc-ng=13.2.0
   - libhwloc=2.9.0
   - libiconv=1.17
   - libsqlite=3.41.2
-  - libstdcxx-ng=13.2.0
-  - libuuid=1.41.5
+#  - libstdcxx-ng=13.2.0
+#  - libuuid=1.41.5
   - libxml2=2.12.5
   - libzlib=1.2.13
   - llvm-openmp=17.0.6
@@ -51,7 +51,7 @@ dependencies:
   - mkl_random=1.2.4
   - multidict=6.0.4
   - mypy_extensions=1.0.0
-  - ncurses=6.4
+#  - ncurses=6.4
   - numpy=1.26.4
   - numpy-base=1.26.4
   - openssl=3.0.13
@@ -63,7 +63,7 @@ dependencies:
   - python=3.11.8
   - python_abi=3.11
   - pyyaml=6.0.1
-  - readline=8.2
+#  - readline=8.2
   - requests=2.31.0
   - setuptools=68.2.2
   - six=1.16.0
@@ -203,7 +203,7 @@ dependencies:
       - tzdata==2024.1
       - uritemplate==4.1.1
       - uvicorn==0.27.1
-      - uvloop==0.19.0
+    #  - uvloop==0.19.0
       - watchfiles==0.21.0
       - websocket-client==1.7.0
       - websockets==12.0
