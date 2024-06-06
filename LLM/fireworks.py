@@ -106,9 +106,7 @@ def fireworks(user_input, APIKey):
         verbose=True, 
         handle_parsing_errors=True,
     )
-    # agent_io = agent_executor.invoke({"input": user_input})
     
-
     
     agent_io = agent_executor.invoke(
     {
@@ -120,4 +118,6 @@ def fireworks(user_input, APIKey):
     result = agent_io.get("output")
     chatHistList.append(HumanMessage(user_input))
     chatHistList.append(AIMessage(result))
+    print(chatHistList)
+    
     return result
