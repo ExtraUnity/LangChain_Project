@@ -70,6 +70,11 @@ def quadraticEquation(a:float, b:float, c:float):
         raise Exception("a cannot be 0 in quadratic equation") 
 
 @tool
+def install_oceanwave3d():
+    """Builds a docker image with the OceanWave3D simulator"""
+    subprocess.run(["bash", "./install_oceanwave3d.sh"])
+
+@tool
 def run_oceanwave3d_simulation():
     """Run a simulation with the OceanWave3D tool."""
     subprocess.run(["bash", "./run_simulation.sh"])
@@ -159,7 +164,7 @@ def fireworks(user_input, APIKey):
 
 
     # Agent:
-    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info, quadraticEquation, run_oceanwave3d_simulation] 
+    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info, quadraticEquation, run_oceanwave3d_simulation, install_oceanwave3d] 
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(
