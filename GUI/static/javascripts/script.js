@@ -4,7 +4,7 @@ async function addMessage() {
 
     if (messageInput.value.trim() !== "") {
         var message = document.createElement("div");
-        message.textContent = "You: "+messageInput.value;
+        message.textContent = "User: "+messageInput.value;
 
         
         var apiKey = document.getElementById("APIKeyInput");
