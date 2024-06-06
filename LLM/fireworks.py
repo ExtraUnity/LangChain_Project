@@ -128,22 +128,22 @@ def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
     subprocess.run(["bash", "./install_oceanwave3d.sh"])
 
-@tool
-def quadraticEquation(a:float, b:float, c:float):
-    """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
-    if a != 0:
-        d = (b**2)-(4*a*c)
-        if d > 0:
-            x1 = ((-b) + numpy.sqrt(d))/(2*a)
-            x2 = ((-b) - numpy.sqrt(d))/(2*a)
-            return x1, x2
-        elif d == 0:
-            x = (-b)/2*a 
-            return x
-        else:
-            raise Exception("no solutions")
-    else:
-        raise Exception("a cannot be 0 in quadratic equation") 
+# @tool
+# def quadraticEquation(a:float, b:float, c:float):
+#     """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
+#     if a != 0:
+#         d = (b**2)-(4*a*c)
+#         if d > 0:
+#             x1 = ((-b) + numpy.sqrt(d))/(2*a)
+#             x2 = ((-b) - numpy.sqrt(d))/(2*a)
+#             return x1, x2
+#         elif d == 0:
+#             x = (-b)/2*a 
+#             return x
+#         else:
+#             raise Exception("no solutions")
+#     else:
+#         raise Exception("a cannot be 0 in quadratic equation") 
 
 @tool
 def install_oceanwave3d():
