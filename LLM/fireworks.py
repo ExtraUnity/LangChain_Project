@@ -93,6 +93,9 @@ def get_weather_info(city: str, country: str):
 ########################################################
 chatHistList = []
 
+def clearMemory():
+    print(chatHistList)
+    chatHistList.clear()
 
 ######################################################
 # Setup guardrails
