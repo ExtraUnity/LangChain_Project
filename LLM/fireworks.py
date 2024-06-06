@@ -103,10 +103,10 @@ def mathSymbolsToWords(s: str) -> str:
 #     else:
 #         raise Exception("a cannot be 0 in quadratic equation") 
 
-@tool
-def subtract(first_int: int, second_int: int) -> int:
-    """Subtracts two integers together."""
-    return first_int - second_int
+# @tool
+# def subtract(first_int: int, second_int: int) -> int:
+#     """Subtracts two integers together."""
+#     return first_int - second_int
 
 # @tool
 # def multiply(first_int: int, second_int: int) -> int:
@@ -162,6 +162,23 @@ def get_weather_info(city: str, country: str):
     weather = OpenWeatherMapAPIWrapper()
     weather_data = weather.run(f"{city},{country}")
     return weather_data
+
+
+class CalculatorInput(BaseModel):
+    query: str = Field(description="should be a mathematical expression")
+
+class CustomCalculatorTool(BaseTool):
+    name: str = "Calculator"
+    description: str = "Tool to evaluate mathemetical expressions"
+    args_schema: Type[BaseModel] = CalculatorInput
+
+    def _run(self, query: str) -> str:
+        """Use the tool."""
+        return LLMMathChain(llm=math_llm, verbose=True).run(query)
+
+    async def _arun(self, query: str) -> str:
+        """Use the tool asynchronously."""
+        raise NotImplementedError("not support async")
 
 
 ########################################################
