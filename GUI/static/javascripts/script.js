@@ -3,16 +3,15 @@ async function addMessage() {
     var messageContainer = document.getElementById("messageContainer");
 
     if (messageInput.value.trim() !== "") {
+        var apiKey = document.getElementById("APIKeyInput");
         var message = document.createElement("div");
         message.textContent = "User: "+messageInput.value;
-
-        
-        var apiKey = document.getElementById("APIKeyInput");
-
+    
         // User input message
         messageContainer.append(message);
-        messageInput.value = "";
-        
+        messageInput.value = "";        
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+
         var llm = -1;
         if(document.getElementById("FireWorks").checked) {
             llm = 0;
@@ -20,13 +19,12 @@ async function addMessage() {
             llm = 1
         }
 
-
         // Chat bot response
         var fetchAIResponse = await invokePythonFunction(message.textContent, llm, apiKey.value); // Wait for the response
         var botResponse = document.createElement("div");
         botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
         messageContainer.append(botResponse);
-
+        messageContainer.scrollTop = messageContainer.scrollHeight;
 
     } else {
         alert("type")
