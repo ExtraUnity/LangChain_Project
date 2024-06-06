@@ -46,6 +46,25 @@ def squareroot(integer: int) -> int:
     return numpy.sqrt(integer)
 
 @tool
+def quadraticEquation(a:float, b:float, c:float):
+    """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
+    if a != 0:
+        d = (b**2)-(4*a*c)
+        if d > 0:
+            x1 = ((-b) + numpy.sqrt(d))/(2*a)
+            x2 = ((-b) - numpy.sqrt(d))/(2*a)
+            return x1, x2
+        elif d == 0:
+            x = (-b)/2*a 
+            return x
+        else:
+            raise Exception("no solutions")
+    else:
+        raise Exception("a cannot be 0 in quadratic equation") 
+
+
+
+@tool
 def get_weather_info(city: str, country: str):
     """Get the weather information"""
     os.environ["OPENWEATHERMAP_API_KEY"] =  "a15039154ac226a73909c312586ea4c8"
@@ -87,7 +106,7 @@ def fireworks(user_input, APIKey):
     ])
 
     # Agent:
-    tools = [add, subtract, multiply, exponentiate, squareroot, get_weather_info] 
+    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info, quadraticEquation] 
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(
@@ -98,22 +117,23 @@ def fireworks(user_input, APIKey):
     )
     
     
-    #agent_io = agent_executor.invoke({"input": user_input})
+    agent_io = agent_executor.invoke({"input": user_input})
     #agent_io = agent_executor.invoke({"input": "Tell me the current weather in Denmark, Copenhagen."})
     #agent_io = agent_executor.invoke({"input": "Get me the current weather temperature from Denmark, Copenhagen, and Japan, Tokyo, and then multiply the two temperatures together."})
-    #result = agent_io.get("output")
+    result = agent_io.get("output")
     
+    # Can you solve this quadratic equation: 2*x^2 + 6*x + 4 = 0
     
-    # NOTE: Hvis man bruger chat_template, så virker flere tools ikke på én gang, da det forstyrrer dens process?
-    test= agent_executor.invoke(
-        {
-            "input": chat_template,    
-            "chat_history": [
-            HumanMessage(content=user_input),
+    # # NOTE: Hvis man bruger chat_template, så virker flere tools ikke på én gang, da det forstyrrer dens process?
+    # test= agent_executor.invoke(
+    #     {
+    #         "input": chat_template,    
+    #         "chat_history": [
+    #         HumanMessage(content=user_input),
             
-            ]
-        }
-    )
-    testResult = test.get("output")
+    #         ]
+    #     }
+    # )
+    # testResult = test.get("output")
     
-    return testResult
+    return result
