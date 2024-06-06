@@ -6,7 +6,7 @@ async function addMessage() {
         var apiKey = document.getElementById("APIKeyInput");
         var message = document.createElement("div");
         message.textContent = "User: "+messageInput.value;
-    
+
         // User input message
         messageContainer.append(message);
         messageInput.value = "";        
@@ -19,8 +19,10 @@ async function addMessage() {
             llm = 1
         }
 
+        str = message.textContent.replace(/\+/g, '%2B')
+
         // Chat bot response
-        var fetchAIResponse = await invokePythonFunction(message.textContent, llm, apiKey.value); // Wait for the response
+        var fetchAIResponse = await invokePythonFunction(str, llm, apiKey.value); // Wait for the response
         var botResponse = document.createElement("div");
         botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
         messageContainer.append(botResponse);
