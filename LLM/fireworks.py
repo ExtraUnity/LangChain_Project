@@ -1,4 +1,5 @@
 import os
+import subprocess
 from langchain import hub
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain_community.utilities import OpenWeatherMapAPIWrapper
@@ -68,7 +69,10 @@ def quadraticEquation(a:float, b:float, c:float):
     else:
         raise Exception("a cannot be 0 in quadratic equation") 
 
-
+@tool
+def run_oceanwave3d_simulation():
+    """Run a simulation with the OceanWave3D tool."""
+    subprocess.run(["bash", "./run_simulation.sh"])
 
 @tool
 def get_weather_info(city: str, country: str):
@@ -101,6 +105,7 @@ def topical_guardrail(user_request):
         ("system", 
          """Your role is to categorise the user request into topics. 
          You can only respond in lists formatted as [topic1, topic2] etc.
+         Include all topics that the request is about.
          """),
         ("user", "{user_request}")
     ])
@@ -115,7 +120,7 @@ def topical_guardrail(user_request):
         ("system", """
          Your role is assess whether a list of topics are allowed. 
          You can ONLY respond with 'allowed' or 'not_allowed'. 
-         The allowed topic list is [Weather, Multiplication]. 
+         The allowed topic list is [Weather, Multiplication, Simulation]. 
          If the user list does contains relevant topics, respond exactly 'allowed'. 
          If the user list contains irrelevant topics, respond exactly 'not_allowed'
 
@@ -152,7 +157,7 @@ def fireworks(user_input, APIKey):
 
 
     # Agent:
-    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info, quadraticEquation] 
+    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info, quadraticEquation, run_oceanwave3d_simulation] 
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(
