@@ -16,5 +16,6 @@ def invoke_python_function():
     llm = request.args.get('llm')
     apiKey = request.args.get('api')
     print(apiKey)
+    print(prompt)
     return jsonify(result=fireworks(prompt, apiKey))
 
