@@ -73,8 +73,9 @@ def get_weather_info(city: str, country: str):
     return weather_data
 
 
-#######
+########################################################
 # Chat history: 
+########################################################
 chatHistList = []
 def chathistory(input):
     chatHistList.append(input)
@@ -84,8 +85,6 @@ def chathistory(input):
 
     print("Chat history: " + chatHistString)
     return chatHistString
-
-
 
 
 ######################################################
