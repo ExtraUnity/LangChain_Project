@@ -129,4 +129,5 @@ def fireworks(user_input, APIKey):
     )
     
     result = agent_io.get("output")
+    chatHistList.append(result)
     return result
