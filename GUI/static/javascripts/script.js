@@ -39,6 +39,14 @@ function enterPress(ele) {
 }
 
 
+function clearMemory() {
+    var messageContainer = document.getElementById("messageContainer");
+    messageContainer.innerHTML = '';
+
+    return fetch('/invoke_python_function_clear')
+    .catch(error => console.error('Error:', error))
+}
+
 function invokePythonFunction(text, llm, apiKey) {
     // Make an AJAX request to the Flask server
 
