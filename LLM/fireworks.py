@@ -133,7 +133,6 @@ def topical_guardrail(user_request):
     return answer
 
 
-
 ######################################################
 # The LLM setup
 ######################################################
@@ -170,6 +169,7 @@ def fireworks(user_input, APIKey):
     }
     )
     
+    # Chat history:
     result = agent_io.get("output")
     chatHistList.append(HumanMessage(user_input))
     chatHistList.append(AIMessage(result))
