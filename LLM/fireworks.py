@@ -43,7 +43,7 @@ def divide(first_int: int, second_int: int) -> int:
     return first_int // second_int
 
 @tool
-def exponentiate(base: int, exponent: int) -> int:
+def exponentiate(base: float, exponent: float) -> float:
     """Exponentiate the base to the exponent power."""
     return base**exponent
 
@@ -77,7 +77,7 @@ def install_oceanwave3d():
 @tool
 def run_oceanwave3d_simulation():
     """Run a simulation with the OceanWave3D tool."""
-    subprocess.run(["bash", "./run_simulation.sh"])
+    subprocess.run(["bash", "./run_simulation.sh", "OceanWave3D.inp"])
 
 @tool
 def get_weather_info(city: str, country: str):
@@ -114,6 +114,11 @@ def topical_guardrail(user_request):
          """Your role is to categorise the user request into topics. 
          You can only respond in lists formatted as [topic1, topic2] etc.
          Include all topics that the request is about.
+
+         Examples:
+         What's the weather in Copenhagen? -> [Weather]
+         Run the OceanWave3D simulation and tell me the age of Madonna -> [Simulation, Celebrity Age]
+         What can you help me with? -> [System information]
          """),
         ("user", "{user_request}")
     ])
@@ -128,7 +133,7 @@ def topical_guardrail(user_request):
         ("system", """
          Your role is assess whether a list of topics are allowed. 
          You can ONLY respond with 'allowed' or 'not_allowed'. 
-         The allowed topic list is [Weather, Multiplication, Simulation]. 
+         The allowed topic list is [Weather, Multiplication, Simulation, System information]. 
          If the user list does contains relevant topics, respond exactly 'allowed'. 
          If the user list contains irrelevant topics, respond exactly 'not_allowed'
 
