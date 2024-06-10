@@ -190,6 +190,7 @@ def topical_guardrail(user_request):
          What's the weather in Copenhagen? -> [Weather]
          Run the OceanWave3D simulation and tell me the age of Madonna -> [Simulation, Celebrity Age]
          What can you help me with? -> [System information]
+         Mathematically, what is the color of grass -> [Color, Nature]
          """),
         ("user", "{user_request}")
     ])
@@ -204,14 +205,18 @@ def topical_guardrail(user_request):
         ("system", """
          Your role is assess whether a list of topics are allowed. 
          You can ONLY respond with 'allowed' or 'not_allowed'. 
-         The allowed topic list is [Weather, Multiplication, Simulation, System information]. 
+         The allowed topic list is [Weather, Mathematics, Simulation, System information, Files]. 
          If the user list does contains relevant topics, respond exactly 'allowed'. 
-         If the user list contains irrelevant topics, respond exactly 'not_allowed'
+         If the user list contains ANY  irrelevant topics, respond exactly 'not_allowed'
+         Be strict in your categorization to ensure only the exact allowed topics are permitted.
 
          Examples:
          [Weather, Celebrity Age] -> not_allowed
          [Temperature] -> allowed
          [Weather, Age] -> not_allowed
+         [Chemistry] -> not_allowed
+         [Physics] -> not_allowed
+         [OceanWave3D simulation] -> allowed
 
          """),
         ("user", "{topics}")
@@ -253,18 +258,21 @@ def fireworks(user_input, APIKey):
         handle_parsing_errors=True,
     )
     
+    try:
+        agent_io = agent_executor.invoke( 
+        {
+            "input": user_input,
+            "chat_history": chatHistList,
+        }
+        )
+        # Chat history:
+        result = agent_io.get("output")
+        chatHistList.append(HumanMessage(user_input))
+        chatHistList.append(AIMessage(result))
+        print(chatHistList)
+        return result
+    except Exception as e:
+        return "An error occurred while producing your answer."
+
     
-    agent_io = agent_executor.invoke( 
-    {
-        "input": user_input,
-        "chat_history": chatHistList,
-    }
-    )
     
-    # Chat history:
-    result = agent_io.get("output")
-    chatHistList.append(HumanMessage(user_input))
-    chatHistList.append(AIMessage(result))
-    print(chatHistList)
-    
-    return result
