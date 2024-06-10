@@ -1,30 +1,28 @@
+import asyncio
+import numpy
 import os
 import subprocess
 from langchain import hub
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain_community.utilities import OpenWeatherMapAPIWrapper
-from langchain_core.tools import tool
-from langchain_fireworks import ChatFireworks
-from langchain_core.prompts import ChatPromptTemplate
-
-from langchain.chains import LLMMathChain
-from langchain.agents import initialize_agent, Tool
-from langchain.agents import AgentType
-from langchain_openai import ChatOpenAI
-from langchain.agents import create_openai_tools_agent
-from langchain.pydantic_v1 import BaseModel, Field
+from langchain.agents import AgentExecutor, AgentType, Tool, create_openai_tools_agent, create_structured_chat_agent, initialize_agent
+from langchain.chains import LLMMathChain, ConversationChain
+from langchain.memory import ChatMessageHistory, ConversationBufferMemory, ConversationSummaryBufferMemory
+from langchain.pydantic_v1 import BaseModel, Field  
 from langchain.tools import BaseTool, StructuredTool, tool
+from langchain_community.chat_models.huggingface import ChatHuggingFace
+from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+from langchain_community.utilities import OpenWeatherMapAPIWrapper
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts.chat import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
+from langchain_fireworks import ChatFireworks
 from typing import Optional, Type
 
-from langchain_core.messages import HumanMessage, AIMessage
-import numpy
-import asyncio
-from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_community.chat_models.huggingface import ChatHuggingFace
 
-### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
+# Instantiate the LLM's
+# fw_api_key = ""
+# llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
 math_llm = ChatOpenAI(
     base_url="https://api.fireworks.ai/inference/v1",
     api_key="4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk",
@@ -32,6 +30,7 @@ math_llm = ChatOpenAI(
     temperature=0.0,
 )
 
+### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
 class CalculatorInput(BaseModel):
     query: str = Field(description="should be a mathematical expression")
 
@@ -49,23 +48,6 @@ class CustomCalculatorTool(BaseTool):
         raise NotImplementedError("not support async")
 
 
-@tool
-def install_oceanwave3d():
-    """Builds a docker image with the OceanWave3D simulator"""
-    subprocess.run(["bash", "./install_oceanwave3d.sh"])
-
-@tool
-def run_oceanwave3d_simulation():
-    """Run a simulation with the OceanWave3D tool."""
-    subprocess.run(["bash", "./run_simulation.sh"])
-
-@tool
-def get_weather_info(city: str, country: str):
-    """Get the weather information"""
-    os.environ["OPENWEATHERMAP_API_KEY"] =  "a15039154ac226a73909c312586ea4c8"
-    weather = OpenWeatherMapAPIWrapper()
-    weather_data = weather.run(f"{city},{country}")
-    return weather_data
 ######################################################
 # Agent Tools
 ######################################################
@@ -159,15 +141,6 @@ def get_weather_info(city: str, country: str):
     return weather_data
 
 
-########################################################
-# Chat history: 
-########################################################
-chatHistList = []
-
-def clearMemory():
-    print(chatHistList)
-    chatHistList.clear()
-
 ######################################################
 # Setup guardrails
 ######################################################
@@ -230,13 +203,82 @@ def topical_guardrail(user_request):
         return str(e)
 
 
+########################################################
+# Chat history: 
+########################################################
+chatHistList = []
+
+def clearMemory():
+    print(chatHistList)
+    chatHistList.clear()
+    
+# chat_messages = ConversationBufferMemory()
+# current_chat_history = ConversationSummaryBufferMemory(max_token_limit=)
+# conversation = ConversationChain(memory=current_chat_history,llm=llm,verbose=True)
+
+
 ######################################################
-# The LLM setup
+# The agent setup
 ######################################################
+
+# Prompt that allows us to add memory to both the AgentExecutor and the chat itself. 
+# Source: https://github.com/ThreeRiversAINexus/sample-langchain-agents/blob/main/structured_chat.py#L13
+# prompt = ChatPromptTemplate.from_messages([
+#     ("system", """
+#      Respond to the human as helpfully and accurately as possible. You have access to the following tools:
+
+#     {tools}
+
+#     Use a json blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).
+
+#     Valid "action" values: "Final Answer" or {tool_names}
+
+#     Provide only ONE action per $JSON_BLOB, as shown:
+
+#     ```
+#     {{
+#     "action": $TOOL_NAME,
+#     "action_input": $INPUT
+#     }}
+#     ```
+
+#     Follow this format:
+
+#     Question: input question to answer
+#     Thought: consider previous and subsequent steps
+#     Action:
+#     ```
+#     $JSON_BLOB
+#     ```
+#     Observation: action result
+#     ... (repeat Thought/Action/Observation N times)
+#     Thought: I know what to respond
+#     Action:
+#     ```
+#     {{
+#     "action": "Final Answer",
+#     "action_input": "Final response to human"
+#     }}
+
+#     Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation
+#      """),
+#     MessagesPlaceholder("chat_history", optional=True),
+#     ("human", """
+#     {input}
+#     {agent_scratchpad}
+#     (reminder to respond in a JSON blob no matter what)
+#      """),
+# ])
+tools = [CustomCalculatorTool(), get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
+prompt = hub.pull("hwchase17/structured-chat-agent")
+
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
 def fireworks(user_input, APIKey):
     print(user_input)
     
     print(APIKey)
+
 
     # API key for fireworks AI:
     if(APIKey == "") :
@@ -244,32 +286,34 @@ def fireworks(user_input, APIKey):
     else :
         os.environ["FIREWORKS_API_KEY"] = APIKey
 
-    llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
-
-
+    llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)    
+    
     # Agent:
-    tools = [CustomCalculatorTool(), get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
-    prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
+    
     agent_executor = AgentExecutor(
         agent=agent, 
         tools=tools, 
         verbose=True, 
         handle_parsing_errors=True,
+        memory = memory,
+        max_iterations=100,
     )
     
     try:
-        agent_io = agent_executor.invoke( 
-        {
+        chat_history = memory.buffer_as_messages
+        agent_io = agent_executor.invoke({
             "input": user_input,
-            "chat_history": chatHistList,
-        }
-        )
-        # Chat history:
+            "chat_history": chat_history,
+        })
+        #print("Agent:", response['output'])
         result = agent_io.get("output")
-        chatHistList.append(HumanMessage(user_input))
-        chatHistList.append(AIMessage(result))
-        print(chatHistList)
+
+        # # Chat history:
+        # result = agent_io.get("output")
+        # chatHistList.append(HumanMessage(user_input))
+        # chatHistList.append(AIMessage(result))
+        print(chat_history)
         return result
     except Exception as e:
         return "An error occurred while producing your answer."
