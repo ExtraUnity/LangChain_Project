@@ -7,14 +7,6 @@ from langchain_core.tools import tool
 from langchain_fireworks import ChatFireworks
 from langchain_core.prompts import ChatPromptTemplate
 
-from langchain_core.messages import HumanMessage, AIMessage
-import numpy
-import asyncio
-from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_community.chat_models.huggingface import ChatHuggingFace
-
 from langchain.chains import LLMMathChain
 from langchain.agents import initialize_agent, Tool
 from langchain.agents import AgentType
@@ -24,6 +16,14 @@ from langchain.pydantic_v1 import BaseModel, Field
 from langchain.tools import BaseTool, StructuredTool, tool
 from typing import Optional, Type
 
+from langchain_core.messages import HumanMessage, AIMessage
+import numpy
+import asyncio
+from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_community.chat_models.huggingface import ChatHuggingFace
+
 
 math_llm = ChatOpenAI(
     base_url="https://api.fireworks.ai/inference/v1",
@@ -32,81 +32,22 @@ math_llm = ChatOpenAI(
     temperature=0.0,
 )
 
+class CalculatorInput(BaseModel):
+    query: str = Field(description="should be a mathematical expression")
 
-def mathSymbolsToWords(s: str) -> str:
-    temp = ""
-    #temp = s.replace("**", " to the power of ").replace("+", " plus ").replace("-", " minus ").replace("/", " devided by ").replace("*", " multiplied by ")
-    for i in range(0, len(s)-1):
-        if s[i] == "%2B":
-            temp += " plus "
-        elif s[i] == '-':
-            temp += " minus "
-        elif s[i] == '/':
-            temp += " divided by "
-        elif s[i] == '*':
-            if i+1 < len(s)-1 and s[i+1] == '*':
-                temp += " to the power of "
-            else: 
-                temp += " multiplied by "   
-        else: 
-            temp += s[i]
-    
-    return temp
-######################################################
-# Agent Tools
-######################################################
+class CustomCalculatorTool(BaseTool):
+    name: str = "Calculator"
+    description: str = "Tool to evaluate mathemetical expressions"
+    args_schema: Type[BaseModel] = CalculatorInput
 
-# @tool
-# def add(first_int: int, second_int: int) -> int:
-#     """Adds two integers together."""
-#     return first_int + second_int
+    def _run(self, query: str) -> str:
+        """Use the tool."""
+        return LLMMathChain(llm=math_llm, verbose=True).run(query)
 
-# @tool
-# def subtract(first_int: int, second_int: int) -> int:
-#     """Subtracts two integers together."""
-#     return first_int - second_int
+    async def _arun(self, query: str) -> str:
+        """Use the tool asynchronously."""
+        raise NotImplementedError("not support async")
 
-# @tool
-# def multiply(first_int: int, second_int: int) -> int:
-#     """Multiply two integers together."""
-#     return first_int * second_int
-
-# @tool
-# def divide(first_int: int, second_int: int) -> int:
-#     """Divides two integers together."""
-#     return first_int // second_int
-
-# @tool
-# def exponentiate(base: int, exponent: int) -> int:
-#     """Exponentiate the base to the exponent power."""
-#     return base**exponent
-
-# @tool
-# def squareroot(integer: int) -> int:
-#     """Takes the square root of an integer"""
-#     return numpy.sqrt(integer)
-
-# @tool
-# def quadraticEquation(a:float, b:float, c:float):
-#     """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
-#     if a != 0:
-#         d = (b**2)-(4*a*c)
-#         if d > 0:
-#             x1 = ((-b) + numpy.sqrt(d))/(2*a)
-#             x2 = ((-b) - numpy.sqrt(d))/(2*a)
-#             return x1, x2
-#         elif d == 0:
-#             x = (-b)/2*a 
-#             return x
-#         else:
-#             raise Exception("no solutions")
-#     else:
-#         raise Exception("a cannot be 0 in quadratic equation") 
-
-@tool
-def install_oceanwave3d():
-    """Builds a docker image with the OceanWave3D simulator"""
-    subprocess.run(["bash", "./install_oceanwave3d.sh"])
 
 @tool
 def install_oceanwave3d():
@@ -125,23 +66,6 @@ def get_weather_info(city: str, country: str):
     weather = OpenWeatherMapAPIWrapper()
     weather_data = weather.run(f"{city},{country}")
     return weather_data
-
-
-class CalculatorInput(BaseModel):
-    query: str = Field(description="should be a mathematical expression")
-
-class CustomCalculatorTool(BaseTool):
-    name: str = "Calculator"
-    description: str = "Tool to evaluate mathemetical expressions"
-    args_schema: Type[BaseModel] = CalculatorInput
-
-    def _run(self, query: str) -> str:
-        """Use the tool."""
-        return LLMMathChain(llm=math_llm, verbose=True).run(query)
-
-    async def _arun(self, query: str) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("not support async")
 
 
 ########################################################
@@ -206,7 +130,7 @@ def topical_guardrail(user_request):
 # The LLM setup
 ######################################################
 def fireworks(user_input, APIKey):
-    user_input = mathSymbolsToWords(user_input)
+    # user_input = mathSymbolsToWords(user_input)
     print(user_input)
     
     print(APIKey)
