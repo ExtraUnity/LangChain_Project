@@ -1,3 +1,4 @@
+from aifc import Error
 import os
 import subprocess
 from langchain import hub
@@ -72,12 +73,36 @@ def quadraticEquation(a:float, b:float, c:float):
 @tool
 def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
-    subprocess.run(["bash", "./install_oceanwave3d.sh"])
+    try:
+        res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True)
+        if res.stdout == None or res.stdout.decode() == "":
+            return res.stderr.decode()
+        return res.stdout.decode()
+    except Exception as e:
+        return str(e)
 
 @tool
-def run_oceanwave3d_simulation():
+def run_oceanwave3d_simulation(input_file):
     """Run a simulation with the OceanWave3D tool."""
-    subprocess.run(["bash", "./run_simulation.sh", "OceanWave3D.inp"])
+    try:
+        res = subprocess.run(["bash", "./run_simulation.sh", input_file], capture_output=True)
+        if res.stdout == None or res.stdout.decode() == "":
+            return res.stderr.decode()
+        return res.stdout.decode()
+    except Exception as e:
+        return str(e)
+
+@tool
+def list_simulation_files():
+    """Lists all valid input files for the OceanWave3D simulation"""
+    try:
+        res = subprocess.run(["bash", "./list_inputfiles.sh"], capture_output=True)
+        if res.stdout == None or res.stdout.decode() == "":
+            return res.stderr.decode()
+        return res.stdout.decode()
+    except Exception as e:
+        return str(e)
+        
 
 @tool
 def get_weather_info(city: str, country: str):
@@ -146,9 +171,12 @@ def topical_guardrail(user_request):
         ("user", "{topics}")
     ])
     chain = prompt2 | llm | output_parser
-    answer = chain.invoke({"topics": topics})
-    print(answer)
-    return answer
+    try: 
+        answer = chain.invoke({"topics": topics})
+        print(answer)
+        return answer
+    except Exception as e:
+        return str(e)
 
 
 ######################################################
@@ -169,7 +197,7 @@ def fireworks(user_input, APIKey):
 
 
     # Agent:
-    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info, quadraticEquation, run_oceanwave3d_simulation, install_oceanwave3d] 
+    tools = [add, subtract, multiply, divide, exponentiate, squareroot, get_weather_info, quadraticEquation, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
     prompt = hub.pull("hwchase17/structured-chat-agent")
     agent = create_structured_chat_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(
