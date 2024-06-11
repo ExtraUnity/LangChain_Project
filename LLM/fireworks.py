@@ -206,11 +206,12 @@ def topical_guardrail(user_request):
 ########################################################
 # Chat history: 
 ########################################################
-chatHistList = []
+#chatHistList = []
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 def clearMemory():
-    print(chatHistList)
-    chatHistList.clear()
+    memory.clear()
+    print(memory)
     
 # chat_messages = ConversationBufferMemory()
 # current_chat_history = ConversationSummaryBufferMemory(max_token_limit=)
@@ -272,8 +273,6 @@ def clearMemory():
 tools = [CustomCalculatorTool(), get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
 prompt = hub.pull("hwchase17/structured-chat-agent")
 
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-
 def fireworks(user_input, APIKey):
     print(user_input)
     
@@ -316,6 +315,7 @@ def fireworks(user_input, APIKey):
         print(chat_history)
         return result
     except Exception as e:
+        print(e)
         return "An error occurred while producing your answer."
 
     
