@@ -20,6 +20,113 @@ from langchain_fireworks import ChatFireworks
 from typing import Optional, Type
 
 
+class ModelExecutor:
+
+    def __init__(self):
+        os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
+        self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
+        self.tools = [CustomCalculatorTool(), get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
+        self.prompt = hub.pull("hwchase17/structured-chat-agent")   
+        self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
+        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        self.agent_executor = AgentExecutor(
+                agent=self.agent, 
+                tools=self.tools, 
+                verbose=True, 
+                handle_parsing_errors=True,
+                memory = self.memory,
+                max_iterations=100,
+            )
+        
+    def handle_input(self, user_input, APIKey):
+        print(user_input)
+        
+        print(APIKey)
+        # API key for fireworks AI:
+        if(APIKey == "") :
+            os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
+        else :
+            os.environ["FIREWORKS_API_KEY"] = APIKey
+        
+        try:
+            chat_history = self.memory.buffer_as_messages
+            agent_io = self.agent_executor.invoke({
+                "input": user_input,
+                "chat_history": chat_history,
+            })
+            #print("Agent:", response['output'])
+            result = agent_io.get("output")
+
+            # # Chat history:
+            # result = agent_io.get("output")
+            # chatHistList.append(HumanMessage(user_input))
+            # chatHistList.append(AIMessage(result))
+            print(chat_history)
+            return result
+        except Exception as e:
+            print(e)
+            return "An error occurred while producing your answer."
+        
+
+    def clearMemory(self):
+        self.memory.clear()
+        print(self.memory)
+
+    ######################################################
+    # Setup guardrails
+    ######################################################
+    def topical_guardrail(self, user_request):
+        print("Checking topical guardrail")
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", 
+            """Your role is to categorise the user request into topics. 
+            You can only respond in lists formatted as [topic1, topic2] etc.
+            Include all topics that the request is about.
+
+            Examples:
+            What's the weather in Copenhagen? -> [Weather]
+            Run the OceanWave3D simulation and tell me the age of Madonna -> [Simulation, Celebrity Age]
+            What can you help me with? -> [System information]
+            Mathematically, what is the color of grass -> [Color, Nature]
+            """),
+            ("user", "{user_request}")
+        ])
+
+        output_parser = StrOutputParser()
+
+        chain = prompt | self.llm | output_parser
+        topics = chain.invoke({"user_request": user_request})
+        print(topics)
+
+        prompt2 = ChatPromptTemplate.from_messages([
+            ("system", """
+            Your role is assess whether a list of topics are allowed. 
+            You can ONLY respond with 'allowed' or 'not_allowed'. 
+            The allowed topic list is [Weather, Mathematics, Simulation, System information, Files]. 
+            If the user list does contains relevant topics, respond exactly 'allowed'. 
+            If the user list contains ANY  irrelevant topics, respond exactly 'not_allowed'
+            Be strict in your categorization to ensure only the exact allowed topics are permitted.
+
+            Examples:
+            [Weather, Celebrity Age] -> not_allowed
+            [Temperature] -> allowed
+            [Weather, Age] -> not_allowed
+            [Chemistry] -> not_allowed
+            [Physics] -> not_allowed
+            [OceanWave3D simulation] -> allowed
+
+            """),
+            ("user", "{topics}")
+        ])
+        chain = prompt2 | self.llm | output_parser
+        try: 
+            answer = chain.invoke({"topics": topics})
+            print(answer)
+            return answer
+        except Exception as e:
+            return str(e)
+
+
 # Instantiate the LLM's
 # fw_api_key = ""
 # llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
@@ -32,11 +139,11 @@ math_llm = ChatOpenAI(
 
 ### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
 class CalculatorInput(BaseModel):
-    query: str = Field(description="should be a mathematical expression")
+    query: str = Field(description="should be a math equation")
 
 class CustomCalculatorTool(BaseTool):
     name: str = "Calculator"
-    description: str = "Tool to evaluate mathemetical expressions"
+    description: str = "Solves math equations"
     args_schema: Type[BaseModel] = CalculatorInput
 
     def _run(self, query: str) -> str:
@@ -141,78 +248,12 @@ def get_weather_info(city: str, country: str):
     return weather_data
 
 
-######################################################
-# Setup guardrails
-######################################################
-def topical_guardrail(user_request):
-    print("Checking topical guardrail")
-    os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
-    # LLM choice from HuggingFace here:
-    repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
-
-    # Instantiate the LLM
-    llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
-
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", 
-         """Your role is to categorise the user request into topics. 
-         You can only respond in lists formatted as [topic1, topic2] etc.
-         Include all topics that the request is about.
-
-         Examples:
-         What's the weather in Copenhagen? -> [Weather]
-         Run the OceanWave3D simulation and tell me the age of Madonna -> [Simulation, Celebrity Age]
-         What can you help me with? -> [System information]
-         Mathematically, what is the color of grass -> [Color, Nature]
-         """),
-        ("user", "{user_request}")
-    ])
-
-    output_parser = StrOutputParser()
-
-    chain = prompt | llm | output_parser
-    topics = chain.invoke({"user_request": user_request})
-    print(topics)
-
-    prompt2 = ChatPromptTemplate.from_messages([
-        ("system", """
-         Your role is assess whether a list of topics are allowed. 
-         You can ONLY respond with 'allowed' or 'not_allowed'. 
-         The allowed topic list is [Weather, Mathematics, Simulation, System information, Files]. 
-         If the user list does contains relevant topics, respond exactly 'allowed'. 
-         If the user list contains ANY  irrelevant topics, respond exactly 'not_allowed'
-         Be strict in your categorization to ensure only the exact allowed topics are permitted.
-
-         Examples:
-         [Weather, Celebrity Age] -> not_allowed
-         [Temperature] -> allowed
-         [Weather, Age] -> not_allowed
-         [Chemistry] -> not_allowed
-         [Physics] -> not_allowed
-         [OceanWave3D simulation] -> allowed
-
-         """),
-        ("user", "{topics}")
-    ])
-    chain = prompt2 | llm | output_parser
-    try: 
-        answer = chain.invoke({"topics": topics})
-        print(answer)
-        return answer
-    except Exception as e:
-        return str(e)
 
 
 ########################################################
 # Chat history: 
 ########################################################
 #chatHistList = []
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-
-def clearMemory():
-    memory.clear()
-    print(memory)
-    
 # chat_messages = ConversationBufferMemory()
 # current_chat_history = ConversationSummaryBufferMemory(max_token_limit=)
 # conversation = ConversationChain(memory=current_chat_history,llm=llm,verbose=True)
@@ -270,53 +311,3 @@ def clearMemory():
 #     (reminder to respond in a JSON blob no matter what)
 #      """),
 # ])
-tools = [CustomCalculatorTool(), get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
-prompt = hub.pull("hwchase17/structured-chat-agent")
-
-def fireworks(user_input, APIKey):
-    print(user_input)
-    
-    print(APIKey)
-
-
-    # API key for fireworks AI:
-    if(APIKey == "") :
-        os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
-    else :
-        os.environ["FIREWORKS_API_KEY"] = APIKey
-
-    llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)    
-    
-    # Agent:
-    agent = create_structured_chat_agent(llm, tools, prompt)
-    
-    agent_executor = AgentExecutor(
-        agent=agent, 
-        tools=tools, 
-        verbose=True, 
-        handle_parsing_errors=True,
-        memory = memory,
-        max_iterations=100,
-    )
-    
-    try:
-        chat_history = memory.buffer_as_messages
-        agent_io = agent_executor.invoke({
-            "input": user_input,
-            "chat_history": chat_history,
-        })
-        #print("Agent:", response['output'])
-        result = agent_io.get("output")
-
-        # # Chat history:
-        # result = agent_io.get("output")
-        # chatHistList.append(HumanMessage(user_input))
-        # chatHistList.append(AIMessage(result))
-        print(chat_history)
-        return result
-    except Exception as e:
-        print(e)
-        return "An error occurred while producing your answer."
-
-    
-    

@@ -22,7 +22,7 @@ async function addMessage() {
         str = message.textContent.replace(/\+/g, '%2B')
 
         // Chat bot response
-        var fetchAIResponse = await invokePythonFunction(str, llm, apiKey.value); // Wait for the response
+        var fetchAIResponse = await getResponse(str, llm, apiKey.value); // Wait for the response
         var botResponse = document.createElement("div");
         botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
         messageContainer.append(botResponse);
@@ -45,14 +45,14 @@ function clearMemory() {
     var messageContainer = document.getElementById("messageContainer");
     messageContainer.innerHTML = '';
 
-    return fetch('/invoke_python_function_clear')
+    return fetch('/clear_history')
     .catch(error => console.error('Error:', error))
 }
 
-function invokePythonFunction(text, llm, apiKey) {
+function getResponse(text, llm, apiKey) {
     // Make an AJAX request to the Flask server
 
-    return fetch('/invoke_python_function?prompt='+text+'&llm='+llm+'&api='+apiKey)
+    return fetch('/generate_response?prompt='+text+'&llm='+llm+'&api='+apiKey)
       .then(response => response.json())
       .then(data => {
         // Return the result from Python
