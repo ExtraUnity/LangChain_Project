@@ -25,5 +25,5 @@ def generate_response():
 
 @app.route('/clear_history')
 def clear():
-    clearMemory()
+    modelExecutor.clearMemory()
     return ""
