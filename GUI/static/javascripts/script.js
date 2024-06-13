@@ -19,10 +19,8 @@ async function addMessage() {
             llm = 1
         }
 
-        str = message.textContent.replace(/\+/g, '%2B')
-
         // Chat bot response
-        var fetchAIResponse = await getResponse(str, llm, apiKey.value); // Wait for the response
+        var fetchAIResponse = await getResponse(message.textContent, llm, apiKey.value); // Wait for the response
         var botResponse = document.createElement("div");
         botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
         messageContainer.append(botResponse);
@@ -52,7 +50,7 @@ function clearMemory() {
 function getResponse(text, llm, apiKey) {
     // Make an AJAX request to the Flask server
 
-    return fetch('/generate_response?prompt='+text+'&llm='+llm+'&api='+apiKey)
+    return fetch('/generate_response?prompt='+encodeURIComponent(text)+'&llm='+encodeURIComponent(llm)+'&api='+encodeURIComponent(apiKey))
       .then(response => response.json())
       .then(data => {
         // Return the result from Python
