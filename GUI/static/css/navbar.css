@@ -36,15 +36,44 @@
     background-color: #555;
 }
 
-.navbar #APIKeyInput {
-    display: block;
+.navbar #APIBlock {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Align items to the bottom of the div */
+    align-items: center; /* Center items horizontally */
     width: 90%; /* Adjust width as needed */
     padding: 10px;
     margin-left: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     margin-top: auto;
+    text-align: center;
+}
+
+.navbar #APIKeyInput {
+    width: 90%; /* Adjust width as needed */
+    padding: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px; /* Space between input and button */
     border: 1px solid #ccc; /* Add border */
     border-radius: 5px; /* Add border radius for rounded corners */
     background-color: #fff; /* Add background color */
     color: #333; /* Add text color */
+    position: absolute; /* Positioning the input field */
+    bottom: 50px; /* 10px gap + 40px height of the button */
+}
+
+.navbar #addMessage {
+    width: 90%; /* Make button width match the input width */
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #208a0b;
+    color: #fff;
+    cursor: pointer;
+    position: absolute; /* Positioning the button */
+    bottom: 10px; /* Align button to the bottom */
+}
+
+.navbar #addMessage:hover {
+    background-color: #0056b3;
 }

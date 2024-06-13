@@ -38,6 +38,22 @@ function enterPress(ele) {
 
 }
 
+function enterPressAPI(ele) {
+    if (ele.keyCode === 13) {
+        updateAPI();
+    }
+}
+
+function updateAPI() {
+    var apiKey = document.getElementById("APIKeyInput").value.trim();
+    return fetch('/updateAPIKey?apiKey='+apiKey)
+    .then(data => {
+        // Return the result from Python
+        return data;
+    })
+    .catch(error => console.error('Error:', error));
+}
+
 
 function clearMemory() {
     var messageContainer = document.getElementById("messageContainer");
@@ -50,7 +66,7 @@ function clearMemory() {
 function getResponse(text, llm, apiKey) {
     // Make an AJAX request to the Flask server
 
-    return fetch('/generate_response?prompt='+encodeURIComponent(text)+'&llm='+encodeURIComponent(llm)+'&api='+encodeURIComponent(apiKey))
+    return fetch('/generate_response?prompt='+encodeURIComponent(text)+'&llm='+encodeURIComponent(llm))
       .then(response => response.json())
       .then(data => {
         // Return the result from Python

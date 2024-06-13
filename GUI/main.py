@@ -13,12 +13,9 @@ def index():
 def generate_response():
     prompt = request.args.get('prompt')
     llm = request.args.get('llm')
-    apiKey = request.args.get('api')
-    
-    print(apiKey)
     guard_rail = modelExecutor.topical_guardrail(prompt)
     if guard_rail.lower() == "allowed" or guard_rail.lower() == "allowed.":
-        return jsonify(result=modelExecutor.handle_input(user_input=prompt, APIKey=apiKey))
+        return jsonify(result=modelExecutor.handle_input(user_input=prompt))
     else:
         return jsonify(result="I'm sorry, but I can't help with that.")
 
@@ -27,3 +24,14 @@ def generate_response():
 def clear():
     modelExecutor.clearMemory()
     return ""
+
+@app.route('/updateAPIKey', methods=['GET'])
+def update_api_key():
+    apiKey = request.args.get('apiKey')
+    if(apiKey==""):
+        return ""
+    if(modelExecutor.updateAPIKey(apiKey)):
+        return apiKey
+    else:
+        return "Error"
+    

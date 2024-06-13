@@ -50,9 +50,10 @@
             </label>
         </form>
 
-          
-        <input type="text" id="APIKeyInput" placeholder="Enter your API key">
-         
+        <div id="APIBlock">
+            <input type="text" id="APIKeyInput" placeholder="Enter your API key" onkeypress="enterPressAPI(event)">
+            <button id="addMessage" onclick="updateAPI()">Update</button>
+        </div>
 
     </div>
 

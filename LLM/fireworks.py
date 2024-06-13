@@ -1,4 +1,5 @@
 import asyncio
+import math
 import numpy
 import os
 import subprocess
@@ -25,7 +26,7 @@ class ModelExecutor:
     def __init__(self):
         os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
         self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-        self.tools = [CustomCalculatorTool(), get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
+        self.tools = [quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
         self.prompt = hub.pull("hwchase17/structured-chat-agent")   
         self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
         self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -36,17 +37,29 @@ class ModelExecutor:
                 handle_parsing_errors=True,
                 memory = self.memory,
                 max_iterations=100,
-            )
+        )
         
-    def handle_input(self, user_input, APIKey):
-        print(user_input)
-        
-        print(APIKey)
-        # API key for fireworks AI:
-        if(APIKey == "") :
-            os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
-        else :
+    def updateAPIKey(self, APIKey):
+        try:
             os.environ["FIREWORKS_API_KEY"] = APIKey
+            self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
+            self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
+            self.agent_executor = AgentExecutor(
+                    agent=self.agent, 
+                    tools=self.tools, 
+                    verbose=True, 
+                    handle_parsing_errors=True,
+                    memory = self.memory,
+                    max_iterations=100,
+            )
+            self.llm.invoke("test")
+            return True
+        except Exception as e:
+            return False
+            
+        
+    def handle_input(self, user_input):
+        print(user_input)
         
         try:
             chat_history = self.memory.buffer_as_messages
@@ -137,13 +150,20 @@ math_llm = ChatOpenAI(
     temperature=0.0,
 )
 
+@tool
+def calculator(expression):
+    """Solves math equations"""
+    chain = LLMMathChain(llm=math_llm, verbose=False)
+    res = chain.invoke(expression)
+    return res.get("answer")
+
 ### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
 class CalculatorInput(BaseModel):
     query: str = Field(description="should be a math equation")
 
 class CustomCalculatorTool(BaseTool):
     name: str = "Calculator"
-    description: str = "Solves math equations"
+    description: str = "Solves math equations"  
     args_schema: Type[BaseModel] = CalculatorInput
 
     def _run(self, query: str) -> str:
@@ -188,22 +208,22 @@ class CustomCalculatorTool(BaseTool):
 #     """Takes the square root of an integer"""
 #     return numpy.sqrt(integer)
 
-# @tool
-# def quadraticEquation(a:float, b:float, c:float):
-#     """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
-#     if a != 0:
-#         d = (b**2)-(4*a*c)
-#         if d > 0:
-#             x1 = ((-b) + numpy.sqrt(d))/(2*a)
-#             x2 = ((-b) - numpy.sqrt(d))/(2*a)
-#             return x1, x2
-#         elif d == 0:
-#             x = (-b)/2*a 
-#             return x
-#         else:
-#             raise Exception("no solutions")
-#     else:
-#         raise Exception("a cannot be 0 in quadratic equation") 
+@tool
+def quadraticEquation(a:float, b:float, c:float):
+    """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
+    if a != 0:
+        d = (b**2)-(4*a*c)
+        if d > 0:
+            x1 = ((-b) + math.sqrt(d))/(2*a)
+            x2 = ((-b) - math.sqrt(d))/(2*a)
+            return x1, x2
+        elif d == 0:
+            x = (-b)/2*a 
+            return x
+        else:
+            raise Exception("no solutions")
+    else:
+        raise Exception("a cannot be 0 in quadratic equation") 
 
 @tool
 def install_oceanwave3d():
