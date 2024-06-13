@@ -46,10 +46,23 @@ function enterPressAPI(ele) {
 
 function updateAPI() {
     var apiKey = document.getElementById("APIKeyInput").value.trim();
+    if(apiKey === "") {
+        return
+    }
+    var status = document.getElementById("statusText");
+    document.getElementById("APIKeyInput").value = "";
+    status.textContent = "Fetching model..."
+    status.style.color = "white";
     return fetch('/updateAPIKey?apiKey='+apiKey)
+    .then(response => response.json())
     .then(data => {
-        // Return the result from Python
-        return data;
+        if(data.result === "Error") {
+            document.getElementById("statusText").textContent="Invalid API Key!";
+            document.getElementById("statusText").style.color = "red";
+        } else {
+            document.getElementById("statusText").textContent="Valid API Key!";
+            document.getElementById("statusText").style.color = "green";
+        }
     })
     .catch(error => console.error('Error:', error));
 }

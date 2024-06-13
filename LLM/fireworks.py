@@ -24,26 +24,31 @@ from typing import Optional, Type
 class ModelExecutor:
 
     def __init__(self):
-        os.environ["FIREWORKS_API_KEY"] = "4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk"
-        self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-        self.tools = [quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
-        self.prompt = hub.pull("hwchase17/structured-chat-agent")   
-        self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
-        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-        self.agent_executor = AgentExecutor(
-                agent=self.agent, 
-                tools=self.tools, 
-                verbose=True, 
-                handle_parsing_errors=True,
-                memory = self.memory,
-                max_iterations=100,
-        )
+        os.environ["FIREWORKS_API_KEY"] = "a"
+        self.llm = None#ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
+        self.tools = None#[quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
+        self.prompt = None#hub.pull("hwchase17/structured-chat-agent")   
+        self.agent = None#create_structured_chat_agent(self.llm, self.tools, self.prompt)
+        self.memory = None#ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        self.agent_executor = None#AgentExecutor(
+        #         agent=self.agent, 
+        #         tools=self.tools, 
+        #         verbose=True, 
+        #         handle_parsing_errors=True,
+        #         memory = self.memory,
+        #         max_iterations=100,
+        # )
         
     def updateAPIKey(self, APIKey):
+        print("hello1")
         try:
             os.environ["FIREWORKS_API_KEY"] = APIKey
+            print("Hello2")
             self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
+            self.tools = [calculator, quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
+            self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
+            self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
             self.agent_executor = AgentExecutor(
                     agent=self.agent, 
                     tools=self.tools, 
@@ -54,7 +59,8 @@ class ModelExecutor:
             )
             self.llm.invoke("test")
             return True
-        except Exception as e:
+        except:
+            
             return False
             
         

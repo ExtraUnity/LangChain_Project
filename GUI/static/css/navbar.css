@@ -77,3 +77,11 @@
 .navbar #addMessage:hover {
     background-color: #0056b3;
 }
+
+.navbar #statusText {
+    color: red; /* Set text color to white */
+    margin-bottom: 80px; /* Space between the text and the input field */
+    align-self: flex-start; /* Align text to the left */
+    width: 100%; /* Ensure the text takes full width for alignment */
+    text-align: left; /* Align text to the left */
+}

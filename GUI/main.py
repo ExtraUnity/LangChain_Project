@@ -25,13 +25,12 @@ def clear():
     modelExecutor.clearMemory()
     return ""
 
-@app.route('/updateAPIKey', methods=['GET'])
+@app.route('/updateAPIKey')
 def update_api_key():
     apiKey = request.args.get('apiKey')
     if(apiKey==""):
-        return ""
+        return jsonify(result="")
     if(modelExecutor.updateAPIKey(apiKey)):
-        return apiKey
+        return jsonify(result=apiKey)
     else:
-        return "Error"
-    
+        return jsonify(result="Error")
