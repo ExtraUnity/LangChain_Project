@@ -2,6 +2,7 @@ import asyncio
 import math
 import numpy
 import os
+import matlab.engine
 import subprocess
 from langchain import hub
 from langchain.agents import AgentExecutor, AgentType, Tool, create_openai_tools_agent, create_structured_chat_agent, initialize_agent
@@ -28,10 +29,10 @@ class ModelExecutor:
     def __init__(self):
         os.environ["FIREWORKS_API_KEY"] = "a"
         self.llm = None#ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-        self.tools = None#[quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
-        self.prompt = None#hub.pull("hwchase17/structured-chat-agent")   
+        self.tools = [calculator, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, visualize_output, list_simulation_files]
+        self.prompt = hub.pull("hwchase17/structured-chat-agent")   
         self.agent = None#create_structured_chat_agent(self.llm, self.tools, self.prompt)
-        self.memory = None#ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
         self.agent_executor = None#AgentExecutor(
         #         agent=self.agent, 
         #         tools=self.tools, 
@@ -42,15 +43,10 @@ class ModelExecutor:
         # )
         
     def updateAPIKey(self, APIKey):
-        print("hello1")
         try:
             os.environ["FIREWORKS_API_KEY"] = APIKey
-            print("Hello2")
             self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-            self.tools = [quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics] 
-            self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
-            self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
             self.agent_executor = AgentExecutor(
                     agent=self.agent, 
                     tools=self.tools, 
@@ -62,13 +58,11 @@ class ModelExecutor:
             self.llm.invoke("test")
             return True
         except:
-            
             return False
             
         
     def handle_input(self, user_input):
         print(user_input)
-        
         try:
             chat_history = self.memory.buffer_as_messages
             agent_io = self.agent_executor.invoke({
@@ -158,6 +152,40 @@ math_llm = ChatOpenAI(
     temperature=0.0,
 )
 
+@tool
+def calculator(expression):
+    """Solves math equations"""
+    chain = LLMMathChain(llm=math_llm, verbose=False)
+    res = chain.invoke(expression)
+    return res.get("answer")
+
+### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
+class CalculatorInput(BaseModel):
+    query: str = Field(description="should be a math equation")
+
+class CustomCalculatorTool(BaseTool):
+    name: str = "Calculator"
+    description: str = "Solves math equations"  
+    args_schema: Type[BaseModel] = CalculatorInput
+
+    def _run(self, query: str) -> str:
+        """Use the tool."""
+        return LLMMathChain(llm=math_llm, verbose=True).run(query)
+
+    async def _arun(self, query: str) -> str:
+        """Use the tool asynchronously."""
+        raise NotImplementedError("not support async")
+
+
+@tool
+def visualize_output(input_file):
+    """Visualize output of the OceanWave3D simulation given by the input_file"""
+    eng = matlab.engine.start_matlab()
+    #output_path = os.path.dirname(__file__) + "../../OceanWave3D-Fortran90/docker/data"
+    eng.ShowFreeSurfaceEvolution2D(input_file, nargout=0)
+    return "The output has been plotted"
+
+
 ######################################################
 # Agent Tools
 ######################################################
@@ -196,22 +224,22 @@ def mathematics(expression):
 #     """Takes the square root of an integer"""
 #     return numpy.sqrt(integer)
 
-@tool
-def quadraticEquation(a:float, b:float, c:float):
-    """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
-    if a != 0:
-        d = (b**2)-(4*a*c)
-        if d > 0:
-            x1 = ((-b) + math.sqrt(d))/(2*a)
-            x2 = ((-b) - math.sqrt(d))/(2*a)
-            return x1, x2
-        elif d == 0:
-            x = (-b)/2*a 
-            return x
-        else:
-            raise Exception("no solutions")
-    else:
-        raise Exception("a cannot be 0 in quadratic equation") 
+# @tool
+# def quadraticEquation(a:float, b:float, c:float):
+#     """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
+#     if a != 0:
+#         d = (b**2)-(4*a*c)
+#         if d > 0:
+#             x1 = ((-b) + math.sqrt(d))/(2*a)
+#             x2 = ((-b) - math.sqrt(d))/(2*a)
+#             return x1, x2
+#         elif d == 0:
+#             x = (-b)/2*a 
+#             return x
+#         else:
+#             raise Exception("no solutions")
+#     else:
+#         raise Exception("a cannot be 0 in quadratic equation") 
 
 
 # @tool
@@ -263,7 +291,7 @@ def run_oceanwave3d_simulation(input_file):
 
 @tool
 def list_simulation_files():
-    """Lists all valid input files for the OceanWave3D simulation"""
+    """Lists all valid INPUT files for the OceanWave3D simulation"""
     try:
         res = subprocess.run(["bash", "./list_inputfiles.sh"], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
