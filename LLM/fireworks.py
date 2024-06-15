@@ -19,6 +19,8 @@ from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langchain_fireworks import ChatFireworks
 from typing import Optional, Type
+from sympy import sympify
+import numexpr as ne
 
 
 class ModelExecutor:
@@ -45,7 +47,7 @@ class ModelExecutor:
             os.environ["FIREWORKS_API_KEY"] = APIKey
             print("Hello2")
             self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-            self.tools = [calculator, quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files] 
+            self.tools = [quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics] 
             self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
             self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -159,25 +161,30 @@ math_llm = ChatOpenAI(
 ######################################################
 # Agent Tools
 ######################################################
-# @tool
-# def add(first_int: int, second_int: int) -> int:
-#     """Adds two integers together."""
-#     return first_int + second_int
+@tool
+def mathematics(expression):
+    """Evaluates a mathematical expression and outputs it in string form."""
+    return sympify(expression)
 
 # @tool
-# def subtract(first_int: int, second_int: int) -> int:
-#     """Subtracts two integers together."""
-#     return first_int - second_int
+# def add(first_float: float, second_float: float) -> float:
+#     """Adds two floategers together."""
+#     return first_float + second_float
 
 # @tool
-# def multiply(first_int: int, second_int: int) -> int:
-#     """Multiply two integers together."""
-#     return first_int * second_int
+# def subtract(first_float: float, second_float: float) -> float:
+#     """Subtracts two floategers together."""
+#     return first_float - second_float
 
 # @tool
-# def divide(first_int: int, second_int: int) -> int:
-#     """Divides two integers together."""
-#     return first_int // second_int
+# def multiply(first_float: float, second_float: float) -> float:
+#     """Multiply two floategers together."""
+#     return first_float * second_float
+
+# @tool
+# def divide(first_float: float, second_float: float) -> float:
+#     """Divides two floategers together."""
+#     return first_float // second_float
 
 # @tool
 # def exponentiate(base: float, exponent: float) -> float:
@@ -207,30 +214,30 @@ def quadraticEquation(a:float, b:float, c:float):
         raise Exception("a cannot be 0 in quadratic equation") 
 
 
-@tool
-def calculator(expression):
-    """Solves math equations"""
-    chain = LLMMathChain(llm=math_llm, verbose=False)
-    res = chain.invoke(expression)
-    return res.get("answer")
+# @tool
+# def calculator(expression):
+#     """Solves math equations"""
+#     chain = LLMMathChain(llm=math_llm, verbose=False)
+#     res = chain.invoke(expression)
+#     return res.get("answer")
 
-# Build-in math-function with inspiration from:
-# https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
-class CalculatorInput(BaseModel):
-    query: str = Field(description="should be a math equation")
+# # Build-in math-function with inspiration from:
+# # https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
+# class CalculatorInput(BaseModel):
+#     query: str = Field(description="should be a math equation")
 
-class CustomCalculatorTool(BaseTool):
-    name: str = "Calculator"
-    description: str = "Solves math equations"  
-    args_schema: Type[BaseModel] = CalculatorInput
+# class CustomCalculatorTool(BaseTool):
+#     name: str = "Calculator"
+#     description: str = "Solves math equations"  
+#     args_schema: Type[BaseModel] = CalculatorInput
 
-    def _run(self, query: str) -> str:
-        """Use the tool."""
-        return LLMMathChain(llm=math_llm, verbose=True).run(query)
+#     def _run(self, query: str) -> str:
+#         """Use the tool."""
+#         return LLMMathChain(llm=math_llm, verbose=True).run(query)
 
-    async def _arun(self, query: str) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("not support async")
+#     async def _arun(self, query: str) -> str:
+#         """Use the tool asynchronously."""
+#         raise NotImplementedError("not support async")
 
 @tool
 def install_oceanwave3d():
