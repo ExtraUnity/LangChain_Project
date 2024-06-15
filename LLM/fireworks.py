@@ -2,7 +2,7 @@ import asyncio
 import math
 import numpy
 import os
-#import matlab.engine
+import matlab.engine
 import subprocess
 from langchain import hub
 from langchain.agents import AgentExecutor, AgentType, Tool, create_openai_tools_agent, create_structured_chat_agent, initialize_agent
