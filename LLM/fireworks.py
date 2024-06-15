@@ -156,31 +156,6 @@ math_llm = ChatOpenAI(
     temperature=0.0,
 )
 
-@tool
-def calculator(expression):
-    """Solves math equations"""
-    chain = LLMMathChain(llm=math_llm, verbose=False)
-    res = chain.invoke(expression)
-    return res.get("answer")
-
-### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
-class CalculatorInput(BaseModel):
-    query: str = Field(description="should be a math equation")
-
-class CustomCalculatorTool(BaseTool):
-    name: str = "Calculator"
-    description: str = "Solves math equations"  
-    args_schema: Type[BaseModel] = CalculatorInput
-
-    def _run(self, query: str) -> str:
-        """Use the tool."""
-        return LLMMathChain(llm=math_llm, verbose=True).run(query)
-
-    async def _arun(self, query: str) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("not support async")
-
-
 ######################################################
 # Agent Tools
 ######################################################
@@ -230,6 +205,32 @@ def quadraticEquation(a:float, b:float, c:float):
             raise Exception("no solutions")
     else:
         raise Exception("a cannot be 0 in quadratic equation") 
+
+
+@tool
+def calculator(expression):
+    """Solves math equations"""
+    chain = LLMMathChain(llm=math_llm, verbose=False)
+    res = chain.invoke(expression)
+    return res.get("answer")
+
+# Build-in math-function with inspiration from:
+# https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
+class CalculatorInput(BaseModel):
+    query: str = Field(description="should be a math equation")
+
+class CustomCalculatorTool(BaseTool):
+    name: str = "Calculator"
+    description: str = "Solves math equations"  
+    args_schema: Type[BaseModel] = CalculatorInput
+
+    def _run(self, query: str) -> str:
+        """Use the tool."""
+        return LLMMathChain(llm=math_llm, verbose=True).run(query)
+
+    async def _arun(self, query: str) -> str:
+        """Use the tool asynchronously."""
+        raise NotImplementedError("not support async")
 
 @tool
 def install_oceanwave3d():
