@@ -19,9 +19,8 @@ from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langchain_fireworks import ChatFireworks
 from typing import Optional, Type
-from sympy import sympify
-import numexpr as ne
-
+from pydantic import BaseModel, ValidationError
+from sympy import sympify, symbols, solve, Eq
 
 class ModelExecutor:
 
@@ -47,7 +46,7 @@ class ModelExecutor:
             os.environ["FIREWORKS_API_KEY"] = APIKey
             print("Hello2")
             self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-            self.tools = [quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics] 
+            self.tools = [quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics, solveEquation] 
             self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
             self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -166,35 +165,30 @@ def mathematics(expression):
     """Evaluates a mathematical expression and outputs it in string form."""
     return sympify(expression)
 
-# @tool
-# def add(first_float: float, second_float: float) -> float:
-#     """Adds two floategers together."""
-#     return first_float + second_float
+@tool
+def solveEquation(expression: str):
+    """Solves a mathematical equation and outputs the result."""
 
-# @tool
-# def subtract(first_float: float, second_float: float) -> float:
-#     """Subtracts two floategers together."""
-#     return first_float - second_float
+    # Validate the input using the schema
+    class SolveEquationInput(BaseModel):expression: str
+    try: validated_input = SolveEquationInput(expression=expression)
+    except ValidationError as e: return f"Invalid input: {e}"
+    expression = validated_input.expression
+    
+    # Logic to solve the equation
+    msg = "Invalid input: please check syntax, are any operation signs missing?"    
+    try:
+        if "=" in expression:
+                lhs_str, rhs_str = expression.split("=")
+                lhs = sympify(lhs_str)
+                rhs = sympify(rhs_str)
+                equation = Eq(lhs, rhs)
+                return solve(equation, symbols('x'))
+        else:
+                equation = sympify(expression)
+                return solve(equation, symbols('x'))        
+    except: return msg
 
-# @tool
-# def multiply(first_float: float, second_float: float) -> float:
-#     """Multiply two floategers together."""
-#     return first_float * second_float
-
-# @tool
-# def divide(first_float: float, second_float: float) -> float:
-#     """Divides two floategers together."""
-#     return first_float // second_float
-
-# @tool
-# def exponentiate(base: float, exponent: float) -> float:
-#     """Exponentiate the base to the exponent power."""
-#     return base**exponent
-
-# @tool
-# def squareroot(integer: int) -> int:
-#     """Takes the square root of an integer"""
-#     return numpy.sqrt(integer)
 
 @tool
 def quadraticEquation(a:float, b:float, c:float):
@@ -209,9 +203,9 @@ def quadraticEquation(a:float, b:float, c:float):
             x = (-b)/2*a 
             return x
         else:
-            raise Exception("no solutions")
+            return "no solutions"
     else:
-        raise Exception("a cannot be 0 in quadratic equation") 
+        return "a cannot be 0 in quadratic equation"
 
 
 # @tool
