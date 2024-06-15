@@ -2,7 +2,7 @@ import asyncio
 import math
 import numpy
 import os
-import matlab.engine
+#import matlab.engine
 import subprocess
 from langchain import hub
 from langchain.agents import AgentExecutor, AgentType, Tool, create_openai_tools_agent, create_structured_chat_agent, initialize_agent
@@ -28,10 +28,10 @@ class ModelExecutor:
     def __init__(self):
         os.environ["FIREWORKS_API_KEY"] = "a"
         self.llm = None#ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-        self.tools = [calculator, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, visualize_output, list_simulation_files]
-        self.prompt = hub.pull("hwchase17/structured-chat-agent")   
+        self.tools = None #[calculator, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, visualize_output, list_simulation_files]
+        self.prompt = None #hub.pull("hwchase17/structured-chat-agent")   
         self.agent = None#create_structured_chat_agent(self.llm, self.tools, self.prompt)
-        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        self.memory = None  #ConversationBufferMemory(memory_key="chat_history", return_messages=True)
         self.agent_executor = None#AgentExecutor(
         #         agent=self.agent, 
         #         tools=self.tools, 
@@ -153,29 +153,33 @@ math_llm = ChatOpenAI(
     temperature=0.0,
 )
 
-@tool
-def calculator(expression):
-    """Solves math equations"""
-    chain = LLMMathChain(llm=math_llm, verbose=False)
-    res = chain.invoke(expression)
-    return res.get("answer")
+######################################################
+# Agent Tools
+######################################################
 
-### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
-class CalculatorInput(BaseModel):
-    query: str = Field(description="should be a math equation")
+# @tool
+# def calculator(expression):
+#     """Solves math equations"""
+#     chain = LLMMathChain(llm=math_llm, verbose=False)
+#     res = chain.invoke(expression)
+#     return res.get("answer")
 
-class CustomCalculatorTool(BaseTool):
-    name: str = "Calculator"
-    description: str = "Solves math equations"  
-    args_schema: Type[BaseModel] = CalculatorInput
+# ### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
+# class CalculatorInput(BaseModel):
+#     query: str = Field(description="should be a math equation")
 
-    def _run(self, query: str) -> str:
-        """Use the tool."""
-        return LLMMathChain(llm=math_llm, verbose=True).run(query)
+# class CustomCalculatorTool(BaseTool):
+#     name: str = "Calculator"
+#     description: str = "Solves math equations"  
+#     args_schema: Type[BaseModel] = CalculatorInput
 
-    async def _arun(self, query: str) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("not support async")
+#     def _run(self, query: str) -> str:
+#         """Use the tool."""
+#         return LLMMathChain(llm=math_llm, verbose=True).run(query)
+
+#     async def _arun(self, query: str) -> str:
+#         """Use the tool asynchronously."""
+#         raise NotImplementedError("not support async")
 
 
 @tool
@@ -187,9 +191,6 @@ def visualize_output(input_file):
     return "The output has been plotted"
 
 
-######################################################
-# Agent Tools
-######################################################
 @tool
 def mathematics(expression):
     """Evaluates a mathematical expression and outputs it in string form."""
@@ -198,11 +199,12 @@ def mathematics(expression):
 @tool
 def solveEquation(expression: str):
     """Solves a mathematical equation and outputs the result."""
-
-    # Validate the input using the schema
-    class SolveEquationInput(BaseModel):expression: str
-    try: validated_input = SolveEquationInput(expression=expression)
-    except ValidationError as e: return f"Invalid input: {e}"
+    class SolveEquationInput(BaseModel):
+        expression: str
+    try:
+        validated_input = SolveEquationInput(expression=expression)
+    except ValidationError as e:
+        return f"Invalid input: {e}"
     expression = validated_input.expression
     
     # Logic to solve the equation
