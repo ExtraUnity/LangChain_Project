@@ -48,6 +48,7 @@ class ModelExecutor:
             self.tools = [quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics, solveEquation] 
             self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
+            self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
             self.agent_executor = AgentExecutor(
                     agent=self.agent, 
                     tools=self.tools, 
