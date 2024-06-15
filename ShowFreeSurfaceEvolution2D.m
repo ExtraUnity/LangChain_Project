@@ -18,8 +18,6 @@ function ShowFreeSurfaceEvolution2D(varargin)
     %dirpath = '/Users/apek/Desktop/OCW3D';
 
     
-    inputFile = varargin{1};
-    
 
     
     
@@ -28,16 +26,16 @@ function ShowFreeSurfaceEvolution2D(varargin)
     % *** Set these values to correspond to the run at hand.***
     initialstep = 0;
 
-    [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile(inputFile);
+    [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile();
     %Nsteps = 1283; %915;
     %jump   = 30;
     %dt     = .0245
     %g      = 9.81;
-    %plotmethod = 2;  % 1-> 2D, 2->3D
+    %plotmethod = 3;  % 1-> 2D, 2->3D
     Amax=10*50*0.125;%10*50*0.125;       % To set the scale of the z-axis plot
     IOmethod = 1; %0:binary ; 1:classical unformatted ; 2:unformatted ftn95
     fac = 0.05;       %1e-1;
-    setInputFromInputFile(inputFile);
+ 
     dirpath = [curdir , '../../OceanWave3D-Fortran90/docker/data'];
     cd(dirpath)
     disp(jump);
@@ -180,17 +178,18 @@ c(:,3) = c(:,3) + 0.5625;
 end
 
 
-function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile(inputFile)
-    dirpath = 'C:/Users/cvede/OneDrive - Danmarks Tekniske Universitet/Skrivebord/Uni/Semester 4/02122 Fagprojekt/OceanWave3D-Fortran90/examples/inputfiles';
+function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile()
+    curdir = cd;
+    dirpath = [curdir , '../../OceanWave3D-Fortran90/docker'];
     cd(dirpath)
     % Open the input file
-    fid = fopen(inputFile, 'r');
+    fid = fopen('OceanWave3D.inp', 'r');
     if fid == -1
         error('Cannot open the input file.');
     end
 
     % Initialize NSteps
-    NSteps = 0;
+    Nsteps = 0;
     dt = 0;
     jump = 0;
     Nx = 0;
@@ -200,17 +199,17 @@ function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile(inputFil
     tline = fgetl(fid);
     while ischar(tline)
         % Check if the line contains NSteps
-        if contains(tline, 'Nsteps')
+        if contains(tline, 'Nsteps') && Nsteps == 0
             % Split the line into parts
             parts = strsplit(tline);
             % Extract the NSteps value
             Nsteps = str2double(parts{1});
             dt = str2double(parts{2});
-        elseif contains(tline, 'StoreDataOnOff')
+        elseif contains(tline, 'StoreDataOnOff') && jump == 0
             % Split the line into parts
             parts = strsplit(tline);
             jump = abs(str2double(parts{1}));
-        elseif contains(tline, 'Ny')
+        elseif contains(tline, 'Ny') && Ny == 0
             % Split the line into parts
             parts = strsplit(tline);
             Nx = abs(str2double(parts{4}));

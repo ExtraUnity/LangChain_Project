@@ -45,7 +45,7 @@ class ModelExecutor:
         try:
             os.environ["FIREWORKS_API_KEY"] = APIKey
             self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-            self.tools = [quadraticEquation, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics, solveEquation] 
+            self.tools = [visualize_output,run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics, solveEquation,quadraticEquation, get_weather_info] 
             self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
             self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -184,11 +184,11 @@ math_llm = ChatOpenAI(
 
 
 @tool
-def visualize_output(input_file):
+def visualize_output():
     """Visualize output of the OceanWave3D simulation given by the input_file"""
     eng = matlab.engine.start_matlab()
     #output_path = os.path.dirname(__file__) + "../../OceanWave3D-Fortran90/docker/data"
-    eng.ShowFreeSurfaceEvolution2D(input_file, nargout=0)
+    eng.ShowFreeSurfaceEvolution2D(nargout=0)
     return "The output has been plotted"
 
 

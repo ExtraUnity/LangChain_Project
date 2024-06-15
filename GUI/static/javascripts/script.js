@@ -12,15 +12,8 @@ async function addMessage() {
         messageInput.value = "";        
         messageContainer.scrollTop = messageContainer.scrollHeight;
 
-        var llm = -1;
-        if(document.getElementById("FireWorks").checked) {
-            llm = 0;
-        } else if (document.getElementById("OpenAi").checked) {
-            llm = 1
-        }
-
         // Chat bot response
-        var fetchAIResponse = await getResponse(message.textContent, llm, apiKey.value); // Wait for the response
+        var fetchAIResponse = await getResponse(message.textContent, apiKey.value); // Wait for the response
         var botResponse = document.createElement("div");
         botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
         messageContainer.append(botResponse);
@@ -76,7 +69,7 @@ function clearMemory() {
     .catch(error => console.error('Error:', error))
 }
 
-function getResponse(text, llm, apiKey) {
+function getResponse(text, llm) {
     // Make an AJAX request to the Flask server
 
     return fetch('/generate_response?prompt='+encodeURIComponent(text)+'&llm='+encodeURIComponent(llm))
