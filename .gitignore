@@ -1,3 +1,4 @@
 .vscode
 GUI/__pycache__/
 LLM/__pycache__/
+OceanWave3D-Fortran90/

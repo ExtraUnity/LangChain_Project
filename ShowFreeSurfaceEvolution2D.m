@@ -36,7 +36,7 @@ function ShowFreeSurfaceEvolution2D(varargin)
     IOmethod = 1; %0:binary ; 1:classical unformatted ; 2:unformatted ftn95
     fac = 0.05;       %1e-1;
  
-    dirpath = [curdir , '../../OceanWave3D-Fortran90/docker/data'];
+    dirpath = [curdir , '/OceanWave3D-Fortran90/docker'];
     cd(dirpath)
     disp(jump);
     %
@@ -180,7 +180,7 @@ end
 
 function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile()
     curdir = cd;
-    dirpath = [curdir , '../../OceanWave3D-Fortran90/docker'];
+    dirpath = [curdir , '/OceanWave3D-Fortran90/docker'];
     cd(dirpath)
     % Open the input file
     fid = fopen('OceanWave3D.inp', 'r');

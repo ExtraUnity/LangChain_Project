@@ -1,51 +1,36 @@
-import asyncio
 import math
-import numpy
 import os
 import matlab.engine
 import subprocess
 from langchain import hub
-from langchain.agents import AgentExecutor, AgentType, Tool, create_openai_tools_agent, create_structured_chat_agent, initialize_agent
-from langchain.chains import LLMMathChain, ConversationChain
-from langchain.memory import ChatMessageHistory, ConversationBufferMemory, ConversationSummaryBufferMemory
-from langchain.pydantic_v1 import BaseModel, Field  
-from langchain.tools import BaseTool, StructuredTool, tool
-from langchain_community.chat_models.huggingface import ChatHuggingFace
-from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain.memory import ConversationBufferMemory
+from langchain.pydantic_v1 import BaseModel
+from langchain.tools import tool
 from langchain_community.utilities import OpenWeatherMapAPIWrapper
-from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts.chat import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langchain_fireworks import ChatFireworks
-from typing import Optional, Type
 from pydantic import BaseModel, ValidationError
 from sympy import sympify, symbols, solve, Eq
 
 class ModelExecutor:
 
     def __init__(self):
-        os.environ["FIREWORKS_API_KEY"] = "a"
-        self.llm = None#ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-        self.tools = None #[calculator, get_weather_info, run_oceanwave3d_simulation, install_oceanwave3d, visualize_output, list_simulation_files]
-        self.prompt = None #hub.pull("hwchase17/structured-chat-agent")   
-        self.agent = None#create_structured_chat_agent(self.llm, self.tools, self.prompt)
-        self.memory = None  #ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-        self.agent_executor = None#AgentExecutor(
-        #         agent=self.agent, 
-        #         tools=self.tools, 
-        #         verbose=True, 
-        #         handle_parsing_errors=True,
-        #         memory = self.memory,
-        #         max_iterations=100,
-        # )
+        self.llm = None
+        self.tools = None
+        self.prompt = None
+        self.agent = None
+        self.memory = None 
+        self.agent_executor = None
         
     def updateAPIKey(self, APIKey):
         try:
             os.environ["FIREWORKS_API_KEY"] = APIKey
             self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-            self.tools = [visualize_output,run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics, solveEquation,quadraticEquation, get_weather_info] 
+            self.tools = [visualize_output,run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics, solveEquation, get_weather_info] 
             self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
             self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -182,6 +167,12 @@ math_llm = ChatOpenAI(
 #         """Use the tool asynchronously."""
 #         raise NotImplementedError("not support async")
 
+@tool
+def change_input_file(input_file, variable, new_value):
+    """Loads an input file, changes a variable to a new value and saves the file"""
+    f = open(input_file)
+    print(f.read())
+
 
 @tool
 def visualize_output():
@@ -273,7 +264,7 @@ def install_oceanwave3d():
         res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
             return res.stderr.decode()
-        return res.stdout.decode()
+        return res.stderr.decode()#"Sucessfully installed the OceanWave3D program"
     except Exception as e:
         return str(e)
 
