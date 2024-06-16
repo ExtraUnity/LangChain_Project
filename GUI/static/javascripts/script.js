@@ -13,15 +13,27 @@ async function addMessage() {
         messageContainer.scrollTop = messageContainer.scrollHeight;
 
         // Chat bot response
-        var fetchAIResponse = await getResponse(message.textContent, apiKey.value); // Wait for the response
+
         var botResponse = document.createElement("div");
-        botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
+        botResponse.textContent = "ChatBot: "+ "Computing response... Time elapsed: 0 seconds"; // Assuming result contains the response
         messageContainer.append(botResponse);
         messageContainer.scrollTop = messageContainer.scrollHeight;
+        
+        var startTime = Date.now();
+        var updateInterval = setInterval(function() {updateTimeElapsed(botResponse, startTime)}, 1000);
+
+        var fetchAIResponse = await getResponse(message.textContent, apiKey.value); // Wait for the response
+        botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
+        clearInterval(updateInterval);
 
     } else {
         alert("type")
     }
+}
+
+function updateTimeElapsed(botResponse, startTime) {
+    var elapsedTime = Math.floor((Date.now() - startTime) / 1000); // Time elapsed in seconds
+    botResponse.textContent = "ChatBot: Computing response... Time elapsed: " + elapsedTime + " seconds";
 }
 
 function enterPress(ele) {
