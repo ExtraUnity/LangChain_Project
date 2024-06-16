@@ -1,5 +1,7 @@
 import math
+import re
 import os
+from typing import Type
 import matlab.engine
 import subprocess
 from langchain import hub
@@ -9,11 +11,11 @@ from langchain.pydantic_v1 import BaseModel
 from langchain.tools import tool
 from langchain_community.utilities import OpenWeatherMapAPIWrapper
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts.chat import ChatPromptTemplate
-from langchain_core.tools import tool
+from langchain_core.prompts.chat import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import tool, BaseTool
 from langchain_openai import ChatOpenAI
 from langchain_fireworks import ChatFireworks
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 from sympy import sympify, symbols, solve, Eq
 
 class ModelExecutor:
@@ -30,7 +32,7 @@ class ModelExecutor:
         try:
             os.environ["FIREWORKS_API_KEY"] = APIKey
             self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
-            self.tools = [visualize_output,run_oceanwave3d_simulation, install_oceanwave3d, list_simulation_files, mathematics, solveEquation, get_weather_info] 
+            self.tools = [visualize_output,run_oceanwave3d_simulation, install_oceanwave3d, ChangeInputFileTool(metadata={'llm': self.llm}), list_simulation_files, mathematics, solveEquation, get_weather_info] 
             self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
             self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -44,7 +46,8 @@ class ModelExecutor:
             )
             self.llm.invoke("test")
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
             
         
@@ -53,7 +56,7 @@ class ModelExecutor:
         try:
             chat_history = self.memory.buffer_as_messages
             agent_io = self.agent_executor.invoke({
-                "input": user_input,
+                "input": user_input + ". Use your tools, dont just answer and use action_input!",
                 "chat_history": chat_history,
             })
             #print("Agent:", response['output'])
@@ -127,8 +130,6 @@ class ModelExecutor:
             return answer
         except Exception as e:
             return str(e)
-
-
 # Instantiate the LLM's
 # fw_api_key = ""
 # llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
@@ -167,11 +168,84 @@ math_llm = ChatOpenAI(
 #         """Use the tool asynchronously."""
 #         raise NotImplementedError("not support async")
 
-@tool
-def change_input_file(input_file, variable, new_value):
-    """Loads an input file, changes a variable to a new value and saves the file"""
-    f = open(input_file)
-    print(f.read())
+def find_index(search_string, string_list):
+    for i, s in enumerate(string_list):
+        if search_string in s:
+            return i
+    return -1  # return -1 if the string is not found
+
+class ChangeInputFileInput(BaseModel):
+    input_file: str = Field(description="Should be a file name")
+    variable: str = Field(description="Variable name")
+    new_value: str = Field(description="Should be a number")
+
+class ChangeInputFileTool(BaseTool):
+    name: str = "change_input_file"
+    description: str = "Loads an input file, changes a variable to a new value and saves the file"
+    args_schema: Type[BaseModel] = ChangeInputFileInput
+    
+    def _run(self, input_file, variable, new_value):
+        """Use the tool."""
+        # Load the file
+        curdir = os.path.dirname(os.path.abspath(__file__))
+        pardir = os.path.join(curdir, os.pardir)
+        file_path = os.path.join(pardir, "OceanWave3D-Fortran90", "examples", "inputfiles", input_file)
+        with open(file_path, 'r') as file:
+            # Read lines from the input file
+            lines = file.readlines()
+
+        # Prompt for LLM
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", 
+            """Your role is to take a piece of text replace the value of {variable} with {new_value}. Ignore everything in parenthesis. 
+            Return ONLY the output text with the change made.
+            Do not write any thoughts. Do not prefix the result with anything. Do not postfix the result with anything. ONLY the exact result!
+            The output should be the same format as the input, only the one value should be changed.
+
+            Example 1:
+            replace c with 5: '1 2 3 4 <- a, b, c, d' => "1 2 5 4 <- a, b, c, d"
+            
+            Example 2:
+            replace StoreDataOnOff with 40 '80  20 1 1 <- StoreDataOnOff, formattype, (StoreDataOnOff=0 -> no output, StoreDataOnOff=+stride-> binary, StoreDataOnOff=-stride -> ascii every stride time steps.  formattype=0, binary; =1, unformatted) If formattype=20, then the line should read: StoreDataOnOff, iKinematics, formattype, nOutFiles; and nOutFiles lines should appear below defining  [xbeg, xend, xstride, ybeg, yend, ystride, tbeg, tend, tstride] for each file.'
+            => "40  20 1 1 <- StoreDataOnOff, formattype, (StoreDataOnOff=0 -> no output, StoreDataOnOff=+stride-> binary, StoreDataOnOff=-stride -> ascii every stride time steps.  formattype=0, binary; =1, unformatted) If formattype=20, then the line should read: StoreDataOnOff, iKinematics, formattype, nOutFiles; and nOutFiles lines should appear below defining  [xbeg, xend, xstride, ybeg, yend, ystride, tbeg, tend, tstride] for each file."
+            """),
+            ("user", "replace {variable} with {new_value}: '{input}'")
+        ])
+
+        output_parser = StrOutputParser()
+        chain = prompt | self.metadata['llm'] | output_parser
+        
+        with open(file_path, 'w') as file:
+            for line in lines:
+                if variable in line:
+                    try:
+                        lhs, rhs = line.split('<-')
+                        print(lhs)
+                        print(rhs)
+                        rhsTrim = re.sub(r'\(.*?\)', '', rhs)
+                        #rhsTrim = re.split(r',\s*(?![^()]*\))', rhs)
+                        rhsTrim = list(filter(None, re.split('[; ,]', rhsTrim)))
+                        #rhsTrim = rhsTrim.split()
+                        lhsTrim = lhs.split()
+                        lhsTrim[find_index(variable, rhsTrim)] = new_value
+                        line = ' '.join(lhsTrim) + '    <- ' + rhs
+                        print(lhsTrim)
+                        print(rhsTrim)
+                    except:
+                        print(line)
+                    # newLine = chain.invoke({
+                    #     "input": line,
+                    #     "variable": variable,
+                    #     "new_value": new_value
+                    # })
+                    # print(line)
+                    # print(newLine)
+                    # line = newLine
+                if "\n" not in line:
+                    line += "\n"
+                file.write(line)
+        return "File has been updated."
+
 
 
 @tool
@@ -180,7 +254,7 @@ def visualize_output():
     eng = matlab.engine.start_matlab()
     #output_path = os.path.dirname(__file__) + "../../OceanWave3D-Fortran90/docker/data"
     eng.ShowFreeSurfaceEvolution2D(nargout=0)
-    return "The output has been plotted"
+    return "Final answer: The output has been plotted"
 
 
 @tool
@@ -264,7 +338,7 @@ def install_oceanwave3d():
         res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
             return res.stderr.decode()
-        return res.stderr.decode()#"Sucessfully installed the OceanWave3D program"
+        return "Sucessfully installed the OceanWave3D program"
     except Exception as e:
         return str(e)
 
@@ -317,49 +391,50 @@ def get_weather_info(city: str, country: str):
 
 # Prompt that allows us to add memory to both the AgentExecutor and the chat itself. 
 # Source: https://github.com/ThreeRiversAINexus/sample-langchain-agents/blob/main/structured_chat.py#L13
-# prompt = ChatPromptTemplate.from_messages([
-#     ("system", """
-#      Respond to the human as helpfully and accurately as possible. You have access to the following tools:
+prompt = ChatPromptTemplate.from_messages([
+    ("system", """
+     Respond to the human as helpfully and accurately as possible. You have access to the following tools:
 
-#     {tools}
+    {tools}
 
-#     Use a json blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).
+    Use a json blob to specify a tool by providing an action key (tool name) and an "action_input" key (tool input).
 
-#     Valid "action" values: "Final Answer" or {tool_names}
+    Valid "action" values: "Final Answer" or {tool_names}
 
-#     Provide only ONE action per $JSON_BLOB, as shown:
+    Provide only ONE action per $JSON_BLOB, as shown:
 
-#     ```
-#     {{
-#     "action": $TOOL_NAME,
-#     "action_input": $INPUT
-#     }}
-#     ```
+    ```
+    {{
+    "action": $TOOL_NAME,
+    "action_input": $INPUT
+    }}
+    ```
+    Remember to call it exactly "action_input". Never call it "arguments"!
+    Follow this format:
 
-#     Follow this format:
+    Question: input question to answer
+    Thought: consider previous and subsequent steps
+    Action:
+    ```
+    $JSON_BLOB
+    ```
+    Observation: action result
+    ... (repeat Thought/Action/Observation N times)
+    Thought: I know what to respond
+    Action:
+    ```
+    {{
+    "action": "Final Answer",
+    "action_input": "Final response to human"
+    }}
 
-#     Question: input question to answer
-#     Thought: consider previous and subsequent steps
-#     Action:
-#     ```
-#     $JSON_BLOB
-#     ```
-#     Observation: action result
-#     ... (repeat Thought/Action/Observation N times)
-#     Thought: I know what to respond
-#     Action:
-#     ```
-#     {{
-#     "action": "Final Answer",
-#     "action_input": "Final response to human"
-#     }}
-
-#     Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation
-#      """),
-#     MessagesPlaceholder("chat_history", optional=True),
-#     ("human", """
-#     {input}
-#     {agent_scratchpad}
-#     (reminder to respond in a JSON blob no matter what)
-#      """),
-# ])
+    Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation
+     """),
+    MessagesPlaceholder("chat_history", optional=True),
+    ("human", """
+    {input}
+    {agent_scratchpad}
+    (reminder to always use "action_input" and not "arguments")
+    (reminder to respond in a JSON blob no matter what)
+     """),
+])
