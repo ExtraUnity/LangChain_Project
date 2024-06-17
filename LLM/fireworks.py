@@ -16,7 +16,7 @@ from langchain_core.tools import tool, BaseTool
 from langchain_openai import ChatOpenAI
 from langchain_fireworks import ChatFireworks
 from pydantic import BaseModel, Field, ValidationError
-from sympy import sympify, symbols, solve, Eq
+from sympy import *
 
 class ModelExecutor:
 
@@ -93,6 +93,7 @@ class ModelExecutor:
             Run the OceanWave3D simulation and tell me the age of Madonna -> [Simulation, Celebrity Age]
             What can you help me with? -> [System information]
             Mathematically, what is the color of grass -> [Color, Nature]
+            List your tools -> [System information]
             """),
             ("user", "{user_request}")
         ])
@@ -253,10 +254,14 @@ def solveEquation(expression: str):
                 lhs = sympify(lhs_str)
                 rhs = sympify(rhs_str)
                 equation = Eq(lhs, rhs)
-                return solve(equation, symbols('x'))
+                solution = solve(equation, symbols('x'))
+                approxSolution = [sol.evalf() for sol in solution] # Convert the ugly CRootOf to numerical approximation :-)
+                return approxSolution
         else:
                 equation = sympify(expression)
-                return solve(equation, symbols('x'))        
+                solution = solve(equation, symbols('x'))
+                approxSolution = [sol.evalf() for sol in solution]
+                return approxSolution     
     except: return msg
 
 
