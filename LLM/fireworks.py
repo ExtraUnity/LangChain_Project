@@ -107,7 +107,7 @@ class ModelExecutor:
             ("system", """
             Your role is assess whether a list of topics are allowed. 
             You can ONLY respond with 'allowed' or 'not_allowed'. 
-            The allowed topic list is [Weather, Mathematics, Simulation, System information, Files]. 
+            The allowed topic list is [Weather, Mathematics, Simulation, Installation, System information, Files]. 
             If the user list does contains relevant topics, respond exactly 'allowed'. 
             If the user list contains ANY  irrelevant topics, respond exactly 'not_allowed'
             Be strict in your categorization to ensure only the exact allowed topics are permitted.
@@ -283,7 +283,7 @@ def quadraticEquation(a:float, b:float, c:float):
 def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
     try:
-        res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True)
+        res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True, shell=True)
         if res.stdout == None or res.stdout.decode() == "":
             return res.stderr.decode()
         return "Sucessfully installed the OceanWave3D program"
@@ -293,6 +293,8 @@ def install_oceanwave3d():
 @tool
 def run_oceanwave3d_simulation(input_file):
     """Run a simulation with the OceanWave3D tool."""
+    if not os.path.isdir("OceanWave3D-Fortran90"):
+        return "You need to install OceanWave3D before running the simulation"
     try:
         res = subprocess.run(["bash", "./run_simulation.sh", input_file], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":

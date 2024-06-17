@@ -12,7 +12,6 @@ def index():
 @app.route('/generate_response', methods=['GET'])
 def generate_response():
     prompt = request.args.get('prompt')
-    llm = request.args.get('llm')
     guard_rail = modelExecutor.topical_guardrail(prompt)
     if guard_rail.lower() == "allowed" or guard_rail.lower() == "allowed.":
         return jsonify(result=modelExecutor.handle_input(user_input=prompt))

@@ -16,6 +16,16 @@
     conda activate <env_name>
     ```
 
+### Installing docker
+To run the OceanWave3D simulation you need docker installed and running.
+You can download docker from docker from:
+https://docs.docker.com/get-docker/
+
+- On Linux, you also need to add docker to the user group in order for the program scripts to run docker commands
+    ```
+        sudo usermod -aG docker $USER
+    ```
+
 ## Export environment to yaml
 If you want to install a package and add it to the environment, run the 'conda env' command
 given below depending on your system OS:
@@ -56,3 +66,6 @@ Then run the runflask.sh bash script by entering:
 ```
 ./runflask.sh
 ```
+
+## Visualizing OceanWave3D output
+In order to visualize the output of the simulations, you need to have MATLAB 2024a installed. This can be downloaded from:
