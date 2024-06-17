@@ -233,7 +233,7 @@ def visualize_output():
 
 @tool
 def mathematics(expression):
-    """Evaluates a mathematical expression and outputs it in string form."""
+    """Evaluates a mathematical arithmetic expression and outputs it in string form."""
     return sympify(expression)
 
 @tool
