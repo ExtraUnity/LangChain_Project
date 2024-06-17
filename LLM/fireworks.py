@@ -144,30 +144,6 @@ math_llm = ChatOpenAI(
 # Agent Tools
 ######################################################
 
-# @tool
-# def calculator(expression):
-#     """Solves math equations"""
-#     chain = LLMMathChain(llm=math_llm, verbose=False)
-#     res = chain.invoke(expression)
-#     return res.get("answer")
-
-# ### Build-in math-function with inspiration from https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
-# class CalculatorInput(BaseModel):
-#     query: str = Field(description="should be a math equation")
-
-# class CustomCalculatorTool(BaseTool):
-#     name: str = "Calculator"
-#     description: str = "Solves math equations"  
-#     args_schema: Type[BaseModel] = CalculatorInput
-
-#     def _run(self, query: str) -> str:
-#         """Use the tool."""
-#         return LLMMathChain(llm=math_llm, verbose=True).run(query)
-
-#     async def _arun(self, query: str) -> str:
-#         """Use the tool asynchronously."""
-#         raise NotImplementedError("not support async")
-
 def find_index(search_string, string_list):
     for i, s in enumerate(string_list):
         if search_string in s:
@@ -220,8 +196,6 @@ class ChangeInputFileTool(BaseTool):
                 if variable in line:
                     try:
                         lhs, rhs = line.split('<-')
-                        print(lhs)
-                        print(rhs)
                         rhsTrim = re.sub(r'\(.*?\)', '', rhs)
                         #rhsTrim = re.split(r',\s*(?![^()]*\))', rhs)
                         rhsTrim = list(filter(None, re.split('[; ,]', rhsTrim)))
@@ -229,8 +203,7 @@ class ChangeInputFileTool(BaseTool):
                         lhsTrim = lhs.split()
                         lhsTrim[find_index(variable, rhsTrim)] = new_value
                         line = ' '.join(lhsTrim) + '    <- ' + rhs
-                        print(lhsTrim)
-                        print(rhsTrim)
+                        print(line)
                     except:
                         print(line)
                     # newLine = chain.invoke({
@@ -306,31 +279,6 @@ def quadraticEquation(a:float, b:float, c:float):
         return "a cannot be 0 in quadratic equation"
 
 
-# @tool
-# def calculator(expression):
-#     """Solves math equations"""
-#     chain = LLMMathChain(llm=math_llm, verbose=False)
-#     res = chain.invoke(expression)
-#     return res.get("answer")
-
-# # Build-in math-function with inspiration from:
-# # https://github.com/fw-ai/cookbook/blob/main/examples/function_calling/fireworks_langchain_tool_usage.ipynb
-# class CalculatorInput(BaseModel):
-#     query: str = Field(description="should be a math equation")
-
-# class CustomCalculatorTool(BaseTool):
-#     name: str = "Calculator"
-#     description: str = "Solves math equations"  
-#     args_schema: Type[BaseModel] = CalculatorInput
-
-#     def _run(self, query: str) -> str:
-#         """Use the tool."""
-#         return LLMMathChain(llm=math_llm, verbose=True).run(query)
-
-#     async def _arun(self, query: str) -> str:
-#         """Use the tool asynchronously."""
-#         raise NotImplementedError("not support async")
-
 @tool
 def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
@@ -372,69 +320,3 @@ def get_weather_info(city: str, country: str):
     weather = OpenWeatherMapAPIWrapper()
     weather_data = weather.run(f"{city},{country}")
     return weather_data
-
-
-
-
-########################################################
-# Chat history: 
-########################################################
-#chatHistList = []
-# chat_messages = ConversationBufferMemory()
-# current_chat_history = ConversationSummaryBufferMemory(max_token_limit=)
-# conversation = ConversationChain(memory=current_chat_history,llm=llm,verbose=True)
-
-
-######################################################
-# The agent setup
-######################################################
-
-# Prompt that allows us to add memory to both the AgentExecutor and the chat itself. 
-# Source: https://github.com/ThreeRiversAINexus/sample-langchain-agents/blob/main/structured_chat.py#L13
-prompt = ChatPromptTemplate.from_messages([
-    ("system", """
-     Respond to the human as helpfully and accurately as possible. You have access to the following tools:
-
-    {tools}
-
-    Use a json blob to specify a tool by providing an action key (tool name) and an "action_input" key (tool input).
-
-    Valid "action" values: "Final Answer" or {tool_names}
-
-    Provide only ONE action per $JSON_BLOB, as shown:
-
-    ```
-    {{
-    "action": $TOOL_NAME,
-    "action_input": $INPUT
-    }}
-    ```
-    Remember to call it exactly "action_input". Never call it "arguments"!
-    Follow this format:
-
-    Question: input question to answer
-    Thought: consider previous and subsequent steps
-    Action:
-    ```
-    $JSON_BLOB
-    ```
-    Observation: action result
-    ... (repeat Thought/Action/Observation N times)
-    Thought: I know what to respond
-    Action:
-    ```
-    {{
-    "action": "Final Answer",
-    "action_input": "Final response to human"
-    }}
-
-    Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation
-     """),
-    MessagesPlaceholder("chat_history", optional=True),
-    ("human", """
-    {input}
-    {agent_scratchpad}
-    (reminder to always use "action_input" and not "arguments")
-    (reminder to respond in a JSON blob no matter what)
-     """),
-])
