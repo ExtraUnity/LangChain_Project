@@ -242,12 +242,11 @@ def solveEquation(expression: str):
         expression: str
     try:
         validated_input = SolveEquationInput(expression=expression)
-    except ValidationError as e:
-        return f"Invalid input: {e}"
+    except: ValidationError("Invalid input, please check syntax, are any operation signs missing?")
     expression = validated_input.expression
     
     # Logic to solve the equation
-    msg = "Invalid input: please check syntax, are any operation signs missing?"    
+    msg = "Error: Invalid input, please check syntax, are any operation signs missing?"    
     try:
         if "=" in expression:
                 lhs_str, rhs_str = expression.split("=")
@@ -259,24 +258,6 @@ def solveEquation(expression: str):
                 equation = sympify(expression)
                 return solve(equation, symbols('x'))        
     except: return msg
-
-
-@tool
-def quadraticEquation(a:float, b:float, c:float):
-    """Solves a quadratic equation of form: ax²+bx+c = 0 with respect to x"""
-    if a != 0:
-        d = (b**2)-(4*a*c)
-        if d > 0:
-            x1 = ((-b) + math.sqrt(d))/(2*a)
-            x2 = ((-b) - math.sqrt(d))/(2*a)
-            return x1, x2
-        elif d == 0:
-            x = (-b)/2*a 
-            return x
-        else:
-            return "no solutions"
-    else:
-        return "a cannot be 0 in quadratic equation"
 
 
 @tool
