@@ -247,7 +247,7 @@ def solveEquation(expression: str):
     expression = validated_input.expression
     
     # Logic to solve the equation
-    msg = "Error: Invalid input, please check syntax, are any operation signs missing?"    
+    msg = "Error: Invalid input, please check syntax, are any operation signs missing? For example \"2x+5=0\" should be written as \"2*x+5=0\""    
     try:
         if "=" in expression:
                 lhs_str, rhs_str = expression.split("=")
