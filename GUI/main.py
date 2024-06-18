@@ -7,7 +7,7 @@ modelExecutor = ModelExecutor()
 def index():
     return render_template('index.html')
 
-# This function is made by Christian
+# This function is made by Tobias
 # Define a route to invoke the function
 @app.route('/generate_response', methods=['GET'])
 def generate_response():
