@@ -16,7 +16,7 @@ from langchain_core.tools import tool, BaseTool
 from langchain_openai import ChatOpenAI
 from langchain_fireworks import ChatFireworks
 from pydantic import BaseModel, Field, ValidationError
-from sympy import sympify, symbols, solve, Eq
+from sympy import *
 
 class ModelExecutor:
 
@@ -85,6 +85,7 @@ class ModelExecutor:
             Run the OceanWave3D simulation and tell me the age of Madonna -> [Simulation, Celebrity Age]
             What can you help me with? -> [System information]
             Mathematically, what is the color of grass -> [Color, Nature]
+            List your tools -> [System information]
             """),
             ("user", "{user_request}")
         ])
@@ -215,7 +216,7 @@ def visualize_output():
 
 @tool
 def mathematics(expression):
-    """Evaluates a mathematical expression and outputs it in string form."""
+    """Evaluates a mathematical arithmetic expression and outputs it in string form."""
     return sympify(expression)
 
 @tool
@@ -229,17 +230,21 @@ def solveEquation(expression: str):
     expression = validated_input.expression
     
     # Logic to solve the equation
-    msg = "Error: Invalid input, please check syntax, are any operation signs missing?"    
+    msg = "Error: Invalid input, please check syntax, are any operation signs missing? For example \"2x+5=0\" should be written as \"2*x+5=0\""    
     try:
         if "=" in expression:
                 lhs_str, rhs_str = expression.split("=")
                 lhs = sympify(lhs_str)
                 rhs = sympify(rhs_str)
                 equation = Eq(lhs, rhs)
-                return solve(equation, symbols('x'))
+                solution = solve(equation, symbols('x'))
+                approxSolution = [sol.evalf() for sol in solution] # Convert the ugly CRootOf to numerical approximation :-)
+                return approxSolution
         else:
                 equation = sympify(expression)
-                return solve(equation, symbols('x'))        
+                solution = solve(equation, symbols('x'))
+                approxSolution = [sol.evalf() for sol in solution]
+                return approxSolution     
     except: return msg
 
 
