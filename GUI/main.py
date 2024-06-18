@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from flask import Flask, jsonify, request
-from LLM.fireworks import ModelExecutor
+from LLM.ModelExecutor import ModelExecutor
 app = Flask(__name__)
 modelExecutor = ModelExecutor()
 @app.route("/")
