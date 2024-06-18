@@ -69,3 +69,4 @@ Then run the runflask.sh bash script by entering:
 
 ## Visualizing OceanWave3D output
 In order to visualize the output of the simulations, you need to have MATLAB 2024a installed. This can be downloaded from:
+https://se.mathworks.com/downloads/
