@@ -231,12 +231,4 @@ function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile()
         error('Nsteps not found in the input file.');
     end
     
-    % Now you can use NSteps in your MATLAB script
-    % For example, set it as a variable
-    assignin('base', 'Nsteps', Nsteps);
-    assignin('base', 'dt', dt);
-    assignin('base', 'jump', jump);
-    assignin('base', 'Nx', Nx);
-    assignin('base', 'Ny', Ny);
-    assignin('base', 'plotmethod', plotmethod);
 end

@@ -52,21 +52,13 @@ class ModelExecutor:
             
         
     def handle_input(self, user_input):
-        print(user_input)
         try:
             chat_history = self.memory.buffer_as_messages
             agent_io = self.agent_executor.invoke({
                 "input": user_input + ". Use your tools, dont just answer and use action_input!",
                 "chat_history": chat_history,
             })
-            #print("Agent:", response['output'])
             result = agent_io.get("output")
-
-            # # Chat history:
-            # result = agent_io.get("output")
-            # chatHistList.append(HumanMessage(user_input))
-            # chatHistList.append(AIMessage(result))
-            print(chat_history)
             return result
         except Exception as e:
             print(e)
@@ -130,15 +122,6 @@ class ModelExecutor:
             return answer
         except Exception as e:
             return str(e)
-# Instantiate the LLM's
-# fw_api_key = ""
-# llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)
-math_llm = ChatOpenAI(
-    base_url="https://api.fireworks.ai/inference/v1",
-    api_key="4kGE92EQWNc7YvDDQqLoohUt0x8HdW8b3fjkq6ZQrs8FOEQk",
-    model="accounts/fireworks/models/mixtral-8x7b-instruct",
-    temperature=0.0,
-)
 
 ######################################################
 # Agent Tools
@@ -263,6 +246,12 @@ def solveEquation(expression: str):
 @tool
 def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
+    try: # Test that docker is running
+        subprocess.run('set -e; docker ps');
+    except Exception as e:
+        return "You must have docker installed and running in order to install OceanWave3D."
+    
+    # Install oceanwave
     try:
         res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True, shell=True)
         if res.stdout == None or res.stdout.decode() == "":
@@ -276,6 +265,13 @@ def run_oceanwave3d_simulation(input_file):
     """Run a simulation with the OceanWave3D tool."""
     if not os.path.isdir("OceanWave3D-Fortran90"):
         return "You need to install OceanWave3D before running the simulation"
+    
+    try: # Test that docker is running
+        subprocess.run('set -e; docker ps');
+    except Exception as e:
+        return "You must have docker installed and running in order to install OceanWave3D."
+
+
     try:
         res = subprocess.run(["bash", "./run_simulation.sh", input_file], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
@@ -287,6 +283,9 @@ def run_oceanwave3d_simulation(input_file):
 @tool
 def list_simulation_files():
     """Lists all valid INPUT files for the OceanWave3D simulation"""
+    if not os.path.isdir("OceanWave3D-Fortran90"):
+        return "You need to install OceanWave3D in order to display input files"
+
     try:
         res = subprocess.run(["bash", "./list_inputfiles.sh"], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
