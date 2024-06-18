@@ -1,3 +1,4 @@
+// This function is made by Nikolaj
 async function addMessage() {
     var messageInput = document.getElementById("messageInput");
     var messageContainer = document.getElementById("messageContainer");
@@ -31,11 +32,13 @@ async function addMessage() {
     }
 }
 
+// This function is made by Christian
 function updateTimeElapsed(botResponse, startTime) {
     var elapsedTime = Math.floor((Date.now() - startTime) / 1000); // Time elapsed in seconds
     botResponse.textContent = "ChatBot: Computing response... Time elapsed: " + elapsedTime + " seconds";
 }
 
+// This function is made by Tobias
 function enterPress(ele) {
     if (ele.keyCode === 13) {
         addMessage();
@@ -43,12 +46,14 @@ function enterPress(ele) {
 
 }
 
+// This function is made by Christian
 function enterPressAPI(ele) {
     if (ele.keyCode === 13) {
         updateAPI();
     }
 }
 
+// This function is made by Christian
 function updateAPI() {
     var apiKey = document.getElementById("APIKeyInput").value.trim();
     if(apiKey === "") {
@@ -72,7 +77,7 @@ function updateAPI() {
     .catch(error => console.error('Error:', error));
 }
 
-
+// This function is made by Tobias
 function clearMemory() {
     var messageContainer = document.getElementById("messageContainer");
     messageContainer.innerHTML = '';
@@ -81,6 +86,7 @@ function clearMemory() {
     .catch(error => console.error('Error:', error))
 }
 
+// This function is made by Nikolaj
 function getResponse(text, llm) {
     // Make an AJAX request to the Flask server
 

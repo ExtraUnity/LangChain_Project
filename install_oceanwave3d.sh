@@ -1,4 +1,5 @@
 #!/bin/bash
+#This file is made by Christian
 set -e
 git clone -b botp https://github.com/apengsigkarup/OceanWave3D-Fortran90.git || true
 cd OceanWave3D-Fortran90/docker

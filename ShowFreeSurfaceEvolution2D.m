@@ -3,7 +3,9 @@
 % from the fortran OceanWave3D model. The script can be easily tailored
 % to output data from other data files as well.
 %
-% By Allan P. Engsig-Karup, apek@imm.dtu.dk.
+% The function ShowFreeSurfaceEvolution2D is provided by Allan P. Engsig-Karup, apek@imm.dtu.dk.
+% with slight changes from Christian.
+% The function 
 
 % Show free surface evolution
 
@@ -160,6 +162,8 @@ function ShowFreeSurfaceEvolution2D(varargin)
         % pause
     end
 end
+
+% This function is provided by Allan P. Engsig-Karup
 function c = water(m)
 % WATER Linear blue-tone color map.
 % WATER(M) return and M-by-3 matrix containing a "water" colormap.
@@ -170,7 +174,6 @@ function c = water(m)
 %
 %             colormap(water)
 %
-%   Allan P. Engsig-Karup, 15-01-2005. 
 
 if nargin < 1, m = size(get(gcf,'colormap'),1); end
 c = min(1,gray(m)*diag([0 1 1-0.5625]));
@@ -178,6 +181,7 @@ c(:,3) = c(:,3) + 0.5625;
 end
 
 
+% This function is made by Christian
 function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile()
     curdir = cd;
     dirpath = [curdir , '/OceanWave3D-Fortran90/docker'];

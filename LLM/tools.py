@@ -13,18 +13,20 @@ import matlab.engine
 ######################################################
 # Agent Tools
 ######################################################
-
+# This function is made by Christian
 def find_index(search_string, string_list):
     for i, s in enumerate(string_list):
         if search_string in s:
             return i
     return -1  # return -1 if the string is not found
 
+# This class is made by Christian
 class ChangeInputFileInput(BaseModel):
     input_file: str = Field(description="Should be a file name")
     variable: str = Field(description="Variable name")
     new_value: str = Field(description="Should be a number")
 
+# This class is made by Christian
 class ChangeInputFileTool(BaseTool):
     name: str = "change_input_file"
     description: str = "Loads an input file, changes a variable to a new value and saves the file"
@@ -39,27 +41,6 @@ class ChangeInputFileTool(BaseTool):
         with open(file_path, 'r') as file:
             # Read lines from the input file
             lines = file.readlines()
-
-        # # Prompt for LLM
-        # prompt = ChatPromptTemplate.from_messages([
-        #     ("system", 
-        #     """Your role is to take a piece of text replace the value of {variable} with {new_value}. Ignore everything in parenthesis. 
-        #     Return ONLY the output text with the change made.
-        #     Do not write any thoughts. Do not prefix the result with anything. Do not postfix the result with anything. ONLY the exact result!
-        #     The output should be the same format as the input, only the one value should be changed.
-
-        #     Example 1:
-        #     replace c with 5: '1 2 3 4 <- a, b, c, d' => "1 2 5 4 <- a, b, c, d"
-            
-        #     Example 2:
-        #     replace StoreDataOnOff with 40 '80  20 1 1 <- StoreDataOnOff, formattype, (StoreDataOnOff=0 -> no output, StoreDataOnOff=+stride-> binary, StoreDataOnOff=-stride -> ascii every stride time steps.  formattype=0, binary; =1, unformatted) If formattype=20, then the line should read: StoreDataOnOff, iKinematics, formattype, nOutFiles; and nOutFiles lines should appear below defining  [xbeg, xend, xstride, ybeg, yend, ystride, tbeg, tend, tstride] for each file.'
-        #     => "40  20 1 1 <- StoreDataOnOff, formattype, (StoreDataOnOff=0 -> no output, StoreDataOnOff=+stride-> binary, StoreDataOnOff=-stride -> ascii every stride time steps.  formattype=0, binary; =1, unformatted) If formattype=20, then the line should read: StoreDataOnOff, iKinematics, formattype, nOutFiles; and nOutFiles lines should appear below defining  [xbeg, xend, xstride, ybeg, yend, ystride, tbeg, tend, tstride] for each file."
-        #     """),
-        #     ("user", "replace {variable} with {new_value}: '{input}'")
-        # ])
-
-        # output_parser = StrOutputParser()
-        # chain = prompt | self.metadata['llm'] | output_parser
         
         with open(file_path, 'w') as file:
             for line in lines:
@@ -76,21 +57,14 @@ class ChangeInputFileTool(BaseTool):
                         print(line)
                     except:
                         print(line)
-                    # newLine = chain.invoke({
-                    #     "input": line,
-                    #     "variable": variable,
-                    #     "new_value": new_value
-                    # })
-                    # print(line)
-                    # print(newLine)
-                    # line = newLine
+
                 if "\n" not in line:
                     line += "\n"
                 file.write(line)
         return "File has been updated."
 
 
-
+# This function is made by Christian
 @tool
 def visualize_output():
     """Visualize output of the OceanWave3D simulation given by the input_file"""
@@ -99,12 +73,13 @@ def visualize_output():
     eng.ShowFreeSurfaceEvolution2D(nargout=0)
     return "Final answer: The output has been plotted"
 
-
+# This function is made by Nikolaj
 @tool
 def mathematics(expression):
     """Evaluates a mathematical arithmetic expression and outputs it in string form."""
     return sympify(expression)
 
+# This function is made by Nikolaj
 @tool
 def solveEquation(expression: str):
     """Solves a mathematical equation and outputs the result."""
@@ -133,7 +108,7 @@ def solveEquation(expression: str):
                 return approxSolution     
     except: return msg
 
-
+# This function is made by Christian
 @tool
 def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
@@ -151,6 +126,7 @@ def install_oceanwave3d():
     except Exception as e:
         return str(e)
 
+# This function is made by Christian
 @tool
 def run_oceanwave3d_simulation(input_file):
     """Run a simulation with the OceanWave3D tool."""
@@ -171,6 +147,8 @@ def run_oceanwave3d_simulation(input_file):
     except Exception as e:
         return str(e)
 
+
+# This function is made by Christian
 @tool
 def list_simulation_files():
     """Lists all valid INPUT files for the OceanWave3D simulation"""
@@ -185,7 +163,7 @@ def list_simulation_files():
     except Exception as e:
         return str(e)
         
-
+# This function is made by Nikolaj
 @tool
 def get_weather_info(city: str, country: str):
     """Get the weather information"""

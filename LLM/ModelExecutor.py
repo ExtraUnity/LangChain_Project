@@ -8,7 +8,7 @@ from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_fireworks import ChatFireworks
 from sympy import *
 
-
+# This class is made by Christian, Marilouise and Tobias (see individual functions)
 class ModelExecutor:
 
     def __init__(self):
@@ -18,7 +18,8 @@ class ModelExecutor:
         self.agent = None
         self.memory = None 
         self.agent_executor = None
-        
+    
+    # This function is made by Marilouise
     def updateAPIKey(self, APIKey):
         try:
             os.environ["FIREWORKS_API_KEY"] = APIKey
@@ -41,7 +42,7 @@ class ModelExecutor:
             print(e)
             return False
             
-        
+    # This function is made by Christian    
     def handle_input(self, user_input):
         try:
             chat_history = self.memory.buffer_as_messages
@@ -55,7 +56,7 @@ class ModelExecutor:
             print(e)
             return "An error occurred while producing your answer."
         
-
+    # This function is made by Tobias
     def clearMemory(self):
         self.memory.clear()
         print(self.memory)
@@ -63,6 +64,7 @@ class ModelExecutor:
     ######################################################
     # Setup guardrails
     ######################################################
+    #This function is made by Christian
     def topical_guardrail(self, user_request):
         print("Checking topical guardrail")
         prompt = ChatPromptTemplate.from_messages([

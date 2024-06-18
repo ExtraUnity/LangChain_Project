@@ -7,7 +7,7 @@ modelExecutor = ModelExecutor()
 def index():
     return render_template('index.html')
 
-
+# This function is made by Christian
 # Define a route to invoke the function
 @app.route('/generate_response', methods=['GET'])
 def generate_response():
@@ -18,12 +18,13 @@ def generate_response():
     else:
         return jsonify(result="I'm sorry, but I can't help with that.")
 
-
+# This function is made by Tobias
 @app.route('/clear_history')
 def clear():
     modelExecutor.clearMemory()
     return ""
 
+# This function is made by Christian
 @app.route('/updateAPIKey')
 def update_api_key():
     apiKey = request.args.get('apiKey')
