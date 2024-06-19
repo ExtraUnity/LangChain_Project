@@ -119,7 +119,7 @@ def install_oceanwave3d():
     # Install oceanwave
     try:
         subprocess.run(["bash", "-c", "sed -i 's/\\r$//' install_oceanwave3d.sh"], shell=True)
-        res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True, shell=True)
+        res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True)
         if res.returncode != 0:
             print(res.returncode)
             print(res.stderr)
