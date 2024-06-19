@@ -1,4 +1,5 @@
 #!/bin/bash
+#This file is made by Nikolaj
 echo "Setting Flask App Environment..."
 set FLASK_APP=GUI/main.py
 $env:FLASK_APP = "GUI/main.py"
