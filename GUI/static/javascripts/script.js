@@ -16,7 +16,7 @@ async function addMessage() {
         // Chat bot response
 
         var botResponse = document.createElement("div");
-        botResponse.textContent = "ChatBot: "+ "Computing response... Time elapsed: 0 seconds"; // Assuming result contains the response
+        botResponse.textContent = "ChatBot: "+ "Computing response... Time elapsed: 0 seconds";
         messageContainer.append(botResponse);
         messageContainer.scrollTop = messageContainer.scrollHeight;
         
@@ -86,7 +86,7 @@ function clearMemory() {
     .catch(error => console.error('Error:', error))
 }
 
-// This function is made by Nikolaj
+// This function is made by Tobias
 function getResponse(text, llm) {
     // Make an AJAX request to the Flask server
 
