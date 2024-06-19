@@ -3,6 +3,8 @@ from flask import Flask, jsonify, request
 from LLM.ModelExecutor import ModelExecutor
 app = Flask(__name__)
 modelExecutor = ModelExecutor()
+
+# This function is made by Nikolaj
 @app.route("/")
 def index():
     return render_template('index.html')
