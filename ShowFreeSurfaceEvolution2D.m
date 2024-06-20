@@ -28,15 +28,15 @@ function ShowFreeSurfaceEvolution2D(varargin)
     % *** Set these values to correspond to the run at hand.***
     initialstep = 0;
 
-    [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile();
+    [jump, Nsteps, dt, Nx, Ny, plotmethod, IOmethod] = setInputFromInputFile();
     %Nsteps = 1283; %915;
     %jump   = 30;
     %dt     = .0245
     %g      = 9.81;
     %plotmethod = 3;  % 1-> 2D, 2->3D
     Amax=10*50*0.125;%10*50*0.125;       % To set the scale of the z-axis plot
-    IOmethod = 1; %0:binary ; 1:classical unformatted ; 2:unformatted ftn95
-    fac = 0.05;       %1e-1;
+    %IOmethod = 3; %0:binary ; 1:classical unformatted ; 2:unformatted ftn95
+    fac = 0.02;       %1e-1;
  
     dirpath = [curdir , '/OceanWave3D-Fortran90/docker'];
     cd(dirpath)
@@ -107,6 +107,22 @@ function ShowFreeSurfaceEvolution2D(varargin)
                     P=fread(fid,[Nx,Ny],'float64');
                     fclose(fid);  
                 end  
+            case 3 % fort files
+                data=load(sprintf('fort.%d',tstep/jump+100));
+                X = data(:, 1);
+                Y = data(:, 2);
+                E = data(:, 3);
+                P = data(:, 4);
+                
+                % Determine unique X and Y values and their counts
+                unique_x = unique(X);
+                unique_y = unique(Y);
+                
+                % Reshape the data
+                X = repmat(unique_x, 1, Ny+2);
+                Y = repmat(unique_y', Nx+2, 1);
+                E = reshape(E, Nx+2, Ny+2);
+                P = reshape(P, Nx+2, Ny+2);
             otherwise  % binary file
                 fid=fopen(sprintf('EP_%.5d.bin',tstep),'r',byteorder);
                 Nx=fread(fid,1,'int32');
@@ -182,7 +198,7 @@ end
 
 
 % This function is made by Christian
-function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile()
+function [jump, Nsteps, dt, Nx, Ny, plotmethod, IOmethod] = setInputFromInputFile()
     curdir = cd;
     dirpath = [curdir , '/OceanWave3D-Fortran90/docker'];
     cd(dirpath)
@@ -198,6 +214,7 @@ function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile()
     jump = 0;
     Nx = 0;
     Ny = 0;
+    IOmethod = 0;
     plotmethod = 2;
     % Read the file line by line
     tline = fgetl(fid);
@@ -213,6 +230,11 @@ function [jump, Nsteps, dt, Nx, Ny, plotmethod] = setInputFromInputFile()
             % Split the line into parts
             parts = strsplit(tline);
             jump = abs(str2double(parts{1}));
+            if str2double(parts{1}) > 0
+                IOmethod = 1
+            else
+                IOmethod = 3
+            end
         elseif contains(tline, 'Ny') && Ny == 0
             % Split the line into parts
             parts = strsplit(tline);
