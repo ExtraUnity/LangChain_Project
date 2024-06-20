@@ -118,9 +118,12 @@ def install_oceanwave3d():
     
     # Install oceanwave
     try:
-        res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True, shell=True)
-        if res.stdout == None or res.stdout.decode() == "":
-            return res.stderr.decode()
+        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' install_oceanwave3d.sh"], shell=True)
+        res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True)
+        if res.returncode != 0:
+            print(res.returncode)
+            print(res.stderr)
+            return "Unable to install OceanWave3D"
         return "Sucessfully installed the OceanWave3D program"
     except Exception as e:
         return str(e)
@@ -138,6 +141,7 @@ def run_oceanwave3d_simulation(input_file):
 
 
     try:
+        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' run_simulation.sh"], shell=True)
         res = subprocess.run(["bash", "./run_simulation.sh", input_file], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
             return res.stderr.decode()
@@ -154,6 +158,7 @@ def list_simulation_files():
         return "You need to install OceanWave3D in order to display input files"
 
     try:
+        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' install_oceanwave3d.sh"], shell=True)
         res = subprocess.run(["bash", "./list_inputfiles.sh"], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
             return res.stderr.decode()
