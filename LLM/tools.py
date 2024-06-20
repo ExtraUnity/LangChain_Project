@@ -112,6 +112,7 @@ def solveEquation(expression: str):
 @tool
 def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
+    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"], shell=True)
     r = subprocess.run(["bash", "./test_docker.sh"], capture_output=True, shell=True) # Check that docker is installed and running
     if r.returncode != 0:
         return "You must have docker installed and running in order to install OceanWave3D."
@@ -134,7 +135,7 @@ def run_oceanwave3d_simulation(input_file):
     """Run a simulation with the OceanWave3D tool."""
     if not os.path.isdir("OceanWave3D-Fortran90"):
         return "You need to install OceanWave3D before running the simulation"
-    
+    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"], shell=True)
     r = subprocess.run(["bash", "./test_docker.sh"], capture_output=True, shell=True) # Check that docker is installed and running
     if r.returncode != 0:
         return "You must have docker installed and running in order to install OceanWave3D."
