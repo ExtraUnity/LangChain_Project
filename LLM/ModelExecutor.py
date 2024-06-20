@@ -1,4 +1,5 @@
 import os
+import json
 from LLM.tools import *
 from langchain import hub
 from langchain.agents import AgentExecutor, create_structured_chat_agent
@@ -18,6 +19,7 @@ class ModelExecutor:
         self.agent = None
         self.memory = None 
         self.agent_executor = None
+        self.testing_intermediate_steps = None #used for testing intermediate steps
     
     # This function is made by Marilouise
     def updateAPIKey(self, APIKey):
@@ -27,13 +29,15 @@ class ModelExecutor:
             self.tools = [visualize_output,run_oceanwave3d_simulation, install_oceanwave3d, ChangeInputFileTool(metadata={'llm': self.llm}), list_simulation_files, mathematics, solveEquation, get_weather_info] 
             self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
-            self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+            self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True, output_key="output")
+            self.testing_intermediate_steps = []
             self.agent_executor = AgentExecutor(
                     agent=self.agent, 
                     tools=self.tools, 
                     verbose=True, 
                     handle_parsing_errors=True,
                     memory = self.memory,
+                    return_intermediate_steps=True,
                     max_iterations=100,
             )
             self.llm.invoke("test")
@@ -50,6 +54,9 @@ class ModelExecutor:
                 "input": user_input + ". Use your tools, dont just answer and use action_input!",
                 "chat_history": chat_history,
             })
+            for i in agent_io["intermediate_steps"]:
+                self.testing_intermediate_steps.append(i[0].tool)
+                
             result = agent_io.get("output")
             return result
         except Exception as e:
