@@ -121,8 +121,16 @@ function ShowFreeSurfaceEvolution2D(varargin)
                 % Reshape the data
                 X = repmat(unique_x, 1, Ny+2);
                 Y = repmat(unique_y', Nx+2, 1);
-                E = reshape(E, Nx+2, Ny+2);
-                P = reshape(P, Nx+2, Ny+2);
+                if Ny==1
+                    E = reshape(E, Nx+2, Ny);
+                    P = reshape(P, Nx+2, Ny);
+                elseif Nx==1
+                    E = reshape(E, Nx, Ny+2);
+                    P = reshape(P, Nx, Ny+2);
+                else
+                    E = reshape(E, Nx+2, Ny+2);
+                    P = reshape(P, Nx+2, Ny+2);
+                end
             otherwise  % binary file
                 fid=fopen(sprintf('EP_%.5d.bin',tstep),'r',byteorder);
                 Nx=fread(fid,1,'int32');
