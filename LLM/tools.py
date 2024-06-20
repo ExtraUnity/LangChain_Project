@@ -112,14 +112,14 @@ def solveEquation(expression: str):
 @tool
 def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
-    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"], shell=True)
-    r = subprocess.run(["bash", "./test_docker.sh"], capture_output=True, shell=True) # Check that docker is installed and running
+    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"])
+    r = subprocess.run(["bash", "./test_docker.sh"], capture_output=True) # Check that docker is installed and running
     if r.returncode != 0:
         return "You must have docker installed and running in order to install OceanWave3D."
     
     # Install oceanwave
     try:
-        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' install_oceanwave3d.sh"], shell=True)
+        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' install_oceanwave3d.sh"])
         res = subprocess.run(["bash", "./install_oceanwave3d.sh"], capture_output=True)
         if res.returncode != 0:
             print(res.returncode)
@@ -135,14 +135,14 @@ def run_oceanwave3d_simulation(input_file):
     """Run a simulation with the OceanWave3D tool."""
     if not os.path.isdir("OceanWave3D-Fortran90"):
         return "You need to install OceanWave3D before running the simulation"
-    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"], shell=True)
-    r = subprocess.run(["bash", "./test_docker.sh"], capture_output=True, shell=True) # Check that docker is installed and running
+    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"])
+    r = subprocess.run(["bash", "./test_docker.sh"], capture_output=True) # Check that docker is installed and running
     if r.returncode != 0:
         return "You must have docker installed and running in order to install OceanWave3D."
 
 
     try:
-        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' run_simulation.sh"], shell=True)
+        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' run_simulation.sh"])
         res = subprocess.run(["bash", "./run_simulation.sh", input_file], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
             return res.stderr.decode()
@@ -159,7 +159,7 @@ def list_simulation_files():
         return "You need to install OceanWave3D in order to display input files"
 
     try:
-        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' install_oceanwave3d.sh"], shell=True)
+        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' list_inputfiles.sh"])
         res = subprocess.run(["bash", "./list_inputfiles.sh"], capture_output=True)
         if res.stdout == None or res.stdout.decode() == "":
             return res.stderr.decode()
