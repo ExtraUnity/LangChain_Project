@@ -1,10 +1,8 @@
-
-/* Got inspiration from https://moderncss.dev/pure-css-custom-styled-radio-buttons/ */
 /* This file is made by Tobias */
+/* The whole design is based on inspiration from https://moderncss.dev/pure-css-custom-styled-radio-buttons/ */
 :root {
     --form-control-color: white;
   }
-  
   *,
   *:before,
   *:after {

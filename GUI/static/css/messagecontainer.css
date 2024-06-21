@@ -1,5 +1,6 @@
-/* Structure of the whole website*/
 /* This file is made by Nikolaj */
+
+/* Structure of the whole website*/
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -67,7 +68,7 @@ body {
         cursor: pointer;
         font-size: 18px;
     }
-
+    /*Button effect*/
     button:hover {
         background-color: #0056b3;
     }

@@ -1,5 +1,6 @@
 #!/bin/bash
 #This file is made by Nikolaj
+# Set up the Flask Environment in bash
 echo "Setting Flask App Environment..."
 export FLASK_APP=GUI/main.py
 sleep 1

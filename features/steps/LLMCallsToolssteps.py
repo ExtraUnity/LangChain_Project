@@ -1,5 +1,4 @@
 # This file is made by Marilouise
-import os
 from behave import *
 from LLM.ModelExecutor import ModelExecutor
 

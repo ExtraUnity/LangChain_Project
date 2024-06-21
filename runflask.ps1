@@ -1,5 +1,6 @@
 #!/bin/bash
 #This file is made by Nikolaj
+# Set up the Flask Environment in powershell
 echo "Setting Flask App Environment..."
 set FLASK_APP=GUI/main.py
 $env:FLASK_APP = "GUI/main.py"

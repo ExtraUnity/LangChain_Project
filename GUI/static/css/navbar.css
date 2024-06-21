@@ -1,4 +1,6 @@
 /* This file is made by Tobias */
+
+/* Structure of the navigation bar */
 .navbar {
     position: fixed;
     left: 0;
@@ -13,6 +15,7 @@
     flex-direction: column;
 }
 
+/* Design of navigation top bar */
 .navbar topbar {
     display: block;
     color: white;
@@ -24,7 +27,7 @@
     background: #208a0b;
 
 }
-
+/* Design of navigation left bar */
 .navbar leftNavBar {
     display: block;
     color: white;
@@ -33,56 +36,55 @@
     text-decoration: none;
 }
 
+/* Effects of the leftbar */
 .navbar leftNavBar:hover {
     background-color: #555;
 }
-
+/* Design of API input field in navigation bar */
 .navbar #APIBlock {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Align items to the bottom of the div */
-    align-items: center; /* Center items horizontally */
-    width: 90%; /* Adjust width as needed */
+    justify-content: flex-end; 
+    align-items: center; 
+    width: 90%; 
     padding: 10px;
     margin-left: 10px;
     margin-bottom: 20px;
     margin-top: auto;
     text-align: center;
 }
-
 .navbar #APIKeyInput {
-    width: 90%; /* Adjust width as needed */
+    width: 90%; 
     padding: 10px;
     margin-left: 10px;
-    margin-bottom: 10px; /* Space between input and button */
-    border: 1px solid #ccc; /* Add border */
-    border-radius: 5px; /* Add border radius for rounded corners */
-    background-color: #fff; /* Add background color */
-    color: #333; /* Add text color */
-    position: absolute; /* Positioning the input field */
-    bottom: 50px; /* 10px gap + 40px height of the button */
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px; 
+    background-color: #fff; 
+    color: #333; 
+    position: absolute;
+    bottom: 50px; 
 }
 
+/* Design of the message buttons*/
 .navbar #addMessage {
-    width: 90%; /* Make button width match the input width */
+    width: 90%; 
     padding: 10px;
     border: none;
     border-radius: 5px;
     background-color: #208a0b;
     color: #fff;
     cursor: pointer;
-    position: absolute; /* Positioning the button */
-    bottom: 10px; /* Align button to the bottom */
+    position: absolute; 
+    bottom: 10px; 
 }
-
 .navbar #addMessage:hover {
     background-color: #0056b3;
 }
-
 .navbar #statusText {
-    color: red; /* Set text color to white */
-    margin-bottom: 80px; /* Space between the text and the input field */
-    align-self: flex-start; /* Align text to the left */
-    width: 100%; /* Ensure the text takes full width for alignment */
-    text-align: left; /* Align text to the left */
+    color: red;
+    margin-bottom: 80px; 
+    align-self: flex-start;
+    width: 100%; 
+    text-align: left; 
 }

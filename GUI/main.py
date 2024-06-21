@@ -5,6 +5,7 @@ app = Flask(__name__)
 modelExecutor = ModelExecutor()
 
 # This function is made by Nikolaj
+# Establishes connection between python backend and html frontend
 @app.route("/")
 def index():
     return render_template('index.html')
@@ -21,12 +22,14 @@ def generate_response():
         return jsonify(result="I'm sorry, but I can't help with that.")
 
 # This function is made by Tobias
+# Handles the clearing of the agent's chat history in backend
 @app.route('/clear_history')
 def clear():
     modelExecutor.clearMemory()
     return ""
 
 # This function is made by Christian
+# Handles the API submitted by user in the frontend
 @app.route('/updateAPIKey')
 def update_api_key():
     apiKey = request.args.get('apiKey')
