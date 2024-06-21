@@ -1,4 +1,5 @@
 // This function is made by Nikolaj
+// Makes sure that the message is added to the chat container and the chatbot response is displayed
 async function addMessage() {
     var messageInput = document.getElementById("messageInput");
     var messageContainer = document.getElementById("messageContainer");
