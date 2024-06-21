@@ -92,9 +92,11 @@ class ModelExecutor:
 
         output_parser = StrOutputParser()
 
-        chain = prompt | self.llm | output_parser
-        topics = chain.invoke({"user_request": user_request})
-        print(topics)
+        try:
+            chain = prompt | self.llm | output_parser
+            topics = chain.invoke({"user_request": user_request})
+        except: # No valid API key
+            return "not_allowed"
 
         prompt2 = ChatPromptTemplate.from_messages([
             ("system", """
@@ -116,11 +118,11 @@ class ModelExecutor:
             """),
             ("user", "{topics}")
         ])
-        chain = prompt2 | self.llm | output_parser
-        try: 
+        
+        try:
+            chain = prompt2 | self.llm | output_parser
             answer = chain.invoke({"topics": topics})
-            print(answer)
             return answer
-        except Exception as e:
-            return str(e)
+        except: # No valid API key
+            return "not_allowed"
         
