@@ -1,6 +1,13 @@
 # LangChain_Project
 
 ## Instructions for running the development environment
+In order to run the program correctly, you must have the following:
+-   Created and activated the conda environment
+-   Have docker installed and running
+-   Install MATLAB and have an active license (only for visualization of output)
+
+
+### Creating conda environment
 -  Download and install Anaconda from https://www.anaconda.com/download
     - On Windows, you need to add the bin folder to your PATH environment variable
     - On Linux, navigate to the Download folder, open terminal and run "bash Anaconda3-<LATEST_VERSION>-Linux-x86_64.sh",
@@ -26,26 +33,9 @@ https://docs.docker.com/get-docker/
         sudo usermod -aG docker $USER
     ```
 
-## Export environment to yaml
-If you want to install a package and add it to the environment, run the 'conda env' command
-given below depending on your system OS:
-
-### For Windows
-```
-    conda env export --no-builds | findstr -v "^prefix: " > environment.yaml
-```
-
-### For Mac/Linux
-```
-    conda env export --no-builds | grep -v "^prefix: " > environment.yaml
-```
-
-
-## Update environment from yaml
-If you want to refresh your own environment, after packages has been added to the environment:
-```
-    conda env update -n <env_name> -f environment.yaml --prune
-```
+### Installing MATLAB
+In order to visualize the output of the simulations, you need to have MATLAB 2024a installed. This can be downloaded from:
+https://se.mathworks.com/downloads/
 
 ## Running Flask Web GUI
 To open the application GUI.
@@ -67,6 +57,3 @@ Then run the runflask.sh bash script by entering:
 ./runflask.sh
 ```
 
-## Visualizing OceanWave3D output
-In order to visualize the output of the simulations, you need to have MATLAB 2024a installed. This can be downloaded from:
-https://se.mathworks.com/downloads/
