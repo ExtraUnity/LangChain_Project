@@ -1,5 +1,6 @@
 import os
 import subprocess
+import re as regex
 from typing import Type
 from langchain.tools import tool
 from langchain_core.tools import tool, BaseTool
@@ -41,26 +42,34 @@ class ChangeInputFileTool(BaseTool):
         with open(file_path, 'r') as file:
             # Read lines from the input file
             lines = file.readlines()
-        
+        varFound = False
         with open(file_path, 'w') as file:
             for line in lines:
                 if variable in line:
+                    varFound = True
                     try:
-                        lhs, rhs = line.split('<-')
-                        rhsTrim = re.sub(r'\(.*?\)', '', rhs)
-                        #rhsTrim = re.split(r',\s*(?![^()]*\))', rhs)
-                        rhsTrim = list(filter(None, re.split('[; ,]', rhsTrim)))
-                        #rhsTrim = rhsTrim.split()
+                        arrowCount = line.count('<-')
+                        lhs=middle=rhs = ""
+                        if arrowCount == 2:
+                            lhs, middle, rhs = line.split('<-')
+                        else:
+                            lhs, rhs = line.split('<-')
+                        rhsTrim = regex.sub(r'\(.*?\)', '', rhs)
+                        rhsTrim = list(filter(None, regex.split('[; ,]', rhsTrim)))
                         lhsTrim = lhs.split()
                         lhsTrim[find_index(variable, rhsTrim)] = new_value
-                        line = ' '.join(lhsTrim) + '    <- ' + rhs
-                        print(line)
-                    except:
-                        print(line)
+                        if middle:
+                            line = ' '.join(lhsTrim) + '    <- ' + middle + '    <- ' + rhs
+                        else:
+                            line = ' '.join(lhsTrim) + '    <- ' + rhs
+                    except Exception as e:
+                        print(e)
 
                 if "\n" not in line:
                     line += "\n"
                 file.write(line)
+        if not varFound:
+            return "Variable could not be found in inputfile"
         return "File has been updated."
 
 
