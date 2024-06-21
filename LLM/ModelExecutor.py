@@ -10,6 +10,7 @@ from langchain_fireworks import ChatFireworks
 from sympy import *
 
 # This class is made by Christian, Marilouise and Tobias (see individual functions)
+# Handles all things related to execution of the language model.
 class ModelExecutor:
 
     def __init__(self):
@@ -22,10 +23,15 @@ class ModelExecutor:
         self.testing_intermediate_steps = None #used for testing intermediate steps
     
     # This function is made by Marilouise
+    # Gets LLM from FireworksAI using the API key and initalizes agent and agent executor
     def updateAPIKey(self, APIKey):
         try:
             os.environ["FIREWORKS_API_KEY"] = APIKey
-            self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)   
+            self.llm = ChatFireworks(model="accounts/fireworks/models/firefunction-v1", temperature=0)  
+
+            # Test that API key is valid and the LLM can be invoked 
+            self.llm.invoke("test") 
+
             self.tools = [visualize_output,run_oceanwave3d_simulation, install_oceanwave3d, ChangeInputFileTool(metadata={'llm': self.llm}), list_simulation_files, mathematics, solveEquation, get_weather_info] 
             self.prompt = hub.pull("hwchase17/structured-chat-agent")   
             self.agent = create_structured_chat_agent(self.llm, self.tools, self.prompt)
@@ -40,13 +46,13 @@ class ModelExecutor:
                     return_intermediate_steps=True,
                     max_iterations=100,
             )
-            self.llm.invoke("test")
-            return True
+            return True # Valid API key
         except Exception as e:
             print(e)
-            return False
+            return False # Invalid
             
     # This function is made by Christian    
+    # Takes user_input and invokes on agent executor.
     def handle_input(self, user_input):
         try:
             chat_history = self.memory.buffer_as_messages
@@ -54,9 +60,12 @@ class ModelExecutor:
                 "input": user_input + ". Use your tools, dont just answer and use action_input!",
                 "chat_history": chat_history,
             })
+
+            # Save tools used for analysis in testing
             for i in agent_io["intermediate_steps"]:
-                self.testing_intermediate_steps.append(i[0].tool)
-                
+                self.testing_intermediate_steps.append(i[0].tool) 
+            
+            # Return final answer of agent
             result = agent_io.get("output")
             return result
         except Exception as e:
@@ -73,7 +82,8 @@ class ModelExecutor:
     ######################################################
     #This function is made by Christian
     def topical_guardrail(self, user_request):
-        print("Checking topical guardrail")
+
+        # Prompt for first chain to generate topic list
         prompt = ChatPromptTemplate.from_messages([
             ("system", 
             """Your role is to categorise the user request into topics. 
@@ -92,12 +102,14 @@ class ModelExecutor:
 
         output_parser = StrOutputParser()
 
+        # Generate topic list
         try:
             chain = prompt | self.llm | output_parser
             topics = chain.invoke({"user_request": user_request})
         except: # No valid API key
             return "not_allowed"
 
+        # Prompt for second chain to validate topic list
         prompt2 = ChatPromptTemplate.from_messages([
             ("system", """
             Your role is assess whether a list of topics are allowed. 
@@ -118,7 +130,8 @@ class ModelExecutor:
             """),
             ("user", "{topics}")
         ])
-        
+
+        # Validate list
         try:
             chain = prompt2 | self.llm | output_parser
             answer = chain.invoke({"topics": topics})

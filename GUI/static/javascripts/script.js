@@ -4,6 +4,7 @@ async function addMessage() {
     var messageContainer = document.getElementById("messageContainer");
 
     if (messageInput.value.trim() !== "") {
+        
         var apiKey = document.getElementById("APIKeyInput");
         var message = document.createElement("div");
         message.textContent = "User: "+messageInput.value;
@@ -23,9 +24,11 @@ async function addMessage() {
         var startTime = Date.now();
         var updateInterval = setInterval(function() {updateTimeElapsed(botResponse, startTime)}, 1000);
 
+
         var fetchAIResponse = await getResponse(message.textContent, apiKey.value); // Wait for the response
         botResponse.textContent = "ChatBot: "+fetchAIResponse.result; // Assuming result contains the response
         clearInterval(updateInterval);
+
 
     } else {
         alert("Enter message")

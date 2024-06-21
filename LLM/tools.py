@@ -15,6 +15,7 @@ import matlab.engine
 # Agent Tools
 ######################################################
 # This function is made by Christian
+# Return index of search_string in string_list
 def find_index(search_string, string_list):
     for i, s in enumerate(string_list):
         if search_string in s:
@@ -28,6 +29,7 @@ class ChangeInputFileInput(BaseModel):
     new_value: str = Field(description="Should be a number")
 
 # This class is made by Christian
+# Loads the input file, finds the variable in the file and changes the value to new_value
 class ChangeInputFileTool(BaseTool):
     name: str = "change_input_file"
     description: str = "Loads an input file, changes a variable to a new value and saves the file"
@@ -48,16 +50,18 @@ class ChangeInputFileTool(BaseTool):
                 if variable in line:
                     varFound = True
                     try:
-                        arrowCount = line.count('<-')
+                        arrowCount = line.count('<-') # Some lines may contain two arrows
                         lhs=middle=rhs = ""
                         if arrowCount == 2:
                             lhs, middle, rhs = line.split('<-')
                         else:
                             lhs, rhs = line.split('<-')
-                        rhsTrim = regex.sub(r'\(.*?\)', '', rhs)
-                        rhsTrim = list(filter(None, regex.split('[; ,]', rhsTrim)))
+                        rhsTrim = regex.sub(r'\(.*?\)', '', rhs) # Remove all text in parenthesis
+                        rhsTrim = list(filter(None, regex.split('[; ,]', rhsTrim))) # Split on comma, space and semicolon
                         lhsTrim = lhs.split()
                         lhsTrim[find_index(variable, rhsTrim)] = new_value
+
+                        # Reconstruct line with new value
                         if middle:
                             line = ' '.join(lhsTrim) + '    <- ' + middle + '    <- ' + rhs
                         else:
@@ -74,11 +78,11 @@ class ChangeInputFileTool(BaseTool):
 
 
 # This function is made by Christian
+# Opens the MATLAB script to visualize output of latest simulation
 @tool
 def visualize_output():
     """Visualize output of the OceanWave3D simulation given by the input_file"""
     eng = matlab.engine.start_matlab()
-    #output_path = os.path.dirname(__file__) + "../../OceanWave3D-Fortran90/docker/data"
     eng.ShowFreeSurfaceEvolution2D(nargout=0)
     return "Final answer: The output has been plotted"
 
@@ -89,6 +93,7 @@ def mathematics(expression):
     return sympify(expression)
 
 # This function is made by Nikolaj
+# Parses equation and gets sympy to solve
 @tool
 def solveEquation(expression: str):
     """Solves a mathematical equation and outputs the result."""
@@ -118,10 +123,11 @@ def solveEquation(expression: str):
     except: return msg
 
 # This function is made by Christian
+# Clones OceanWave3D repository and compiles using the dockerfile
 @tool
 def install_oceanwave3d():
     """Builds a docker image with the OceanWave3D simulator"""
-    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"])
+    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"]) # Fixes difference in line break character on Windows and Linux
     r = subprocess.run(["bash", "./test_docker.sh"], capture_output=True) # Check that docker is installed and running
     if r.returncode != 0:
         return "You must have docker installed and running in order to install OceanWave3D."
@@ -144,15 +150,15 @@ def run_oceanwave3d_simulation(input_file):
     """Run a simulation with the OceanWave3D tool."""
     if not os.path.isdir("OceanWave3D-Fortran90"):
         return "You need to install OceanWave3D before running the simulation"
-    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"])
+    
+    subprocess.run(["bash", "-c", "sed -i 's/\\r$//' test_docker.sh"]) 
     r = subprocess.run(["bash", "./test_docker.sh"], capture_output=True) # Check that docker is installed and running
     if r.returncode != 0:
         return "You must have docker installed and running in order to install OceanWave3D."
 
-
     try:
-        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' run_simulation.sh"])
-        res = subprocess.run(["bash", "./run_simulation.sh", input_file], capture_output=True)
+        subprocess.run(["bash", "-c", "sed -i 's/\\r$//' run_simulation.sh"]) 
+        res = subprocess.run(["bash", "./run_simulation.sh", input_file], capture_output=True) # Run the simulation script
         if res.stdout == None or res.stdout.decode() == "":
             return res.stderr.decode()
         return res.stdout.decode()
