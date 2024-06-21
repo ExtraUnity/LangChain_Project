@@ -28,7 +28,7 @@ async function addMessage() {
         clearInterval(updateInterval);
 
     } else {
-        alert("type")
+        alert("Enter message")
     }
 }
 
